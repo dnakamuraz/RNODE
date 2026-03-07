@@ -17,15 +17,10 @@ multiSPR = function(trees1, trees2,
                     normalization = FALSE,
                     subsample = 1) {
 
-  # Validate subsample
-  if (subsample <= 0) {
-    stop("subsample must be greater than 0")
-  }
-  if (subsample > 1) {
-    stop("subsample must be <= 1")
-  }
+  if (subsample <= 0) stop("subsample must be > 0")
+  if (subsample > 1) stop("subsample must be <= 1")
 
-  # Keep only binary trees if multiPhylo
+  # Keep only binary trees
   if (inherits(trees1, "multiPhylo")) {
     trees1 <- trees1[sapply(trees1, is.binary)]
   }
@@ -33,7 +28,7 @@ multiSPR = function(trees1, trees2,
     trees2 <- trees2[sapply(trees2, is.binary)]
   }
 
-  # Subsample trees if requested
+  # Subsample trees
   if (subsample < 1) {
     if (inherits(trees1, "multiPhylo")) {
       n1 <- ceiling(length(trees1) * subsample)
@@ -46,8 +41,7 @@ multiSPR = function(trees1, trees2,
   }
 
   ##########
-  # CASE 1
-  # Both multiPhylo
+  # CASE 1 #
   ##########
   if (inherits(trees1, "multiPhylo") && inherits(trees2, "multiPhylo")) {
 
@@ -55,26 +49,41 @@ multiSPR = function(trees1, trees2,
 
     for (i in seq_along(trees1)) {
       for (j in seq_along(trees2)) {
+
         if (normalization) {
           spr_distances[i, j] <- RNODE::normalizedSPR(trees1[[i]], trees2[[j]])
         } else {
           spr_distances[i, j] <- TreeDist::SPRDist(trees1[[i]], trees2[[j]])
         }
+
       }
     }
 
+    vals <- as.vector(spr_distances)
+
     if (method == "meanSPR") {
-      return(list(meanSPR = mean(spr_distances, na.rm = TRUE), matrix = spr_distances))
+      return(mean(vals, na.rm = TRUE))
+
     } else if (method == "minSPR") {
-      return(list(minSPR = min(spr_distances, na.rm = TRUE), matrix = spr_distances))
+      return(min(vals, na.rm = TRUE))
+
+    } else if (method == "maxSPR") {
+      return(max(vals, na.rm = TRUE))
+
     } else if (method == "random") {
-      return(sample(spr_distances, 1))
+      return(sample(vals, 1))
+
+    } else if (method == "all") {
+      return(data.frame(
+        minSPR = min(vals, na.rm = TRUE),
+        maxSPR = max(vals, na.rm = TRUE),
+        meanSPR = mean(vals, na.rm = TRUE)
+      ))
     }
   }
 
   ##########
   # CASE 2 #
-  # multiPhylo vs phylo
   ##########
   else if (inherits(trees1, "multiPhylo") && inherits(trees2, "phylo")) {
 
@@ -85,12 +94,19 @@ multiSPR = function(trees1, trees2,
 
     if (method == "meanSPR") return(mean(distances))
     else if (method == "minSPR") return(min(distances))
+    else if (method == "maxSPR") return(max(distances))
     else if (method == "random") return(sample(distances, 1))
+    else if (method == "all") {
+      return(data.frame(
+        minSPR = min(distances),
+        maxSPR = max(distances),
+        meanSPR = mean(distances)
+      ))
+    }
   }
 
   ##########
   # CASE 3 #
-  # phylo vs multiPhylo
   ##########
   else if (inherits(trees1, "phylo") && inherits(trees2, "multiPhylo")) {
 
@@ -101,12 +117,19 @@ multiSPR = function(trees1, trees2,
 
     if (method == "meanSPR") return(mean(distances))
     else if (method == "minSPR") return(min(distances))
+    else if (method == "maxSPR") return(max(distances))
     else if (method == "random") return(sample(distances, 1))
+    else if (method == "all") {
+      return(data.frame(
+        minSPR = min(distances),
+        maxSPR = max(distances),
+        meanSPR = mean(distances)
+      ))
+    }
   }
 
   ##########
   # CASE 4 #
-  # phylo vs phylo
   ##########
   else if (inherits(trees1, "phylo") && inherits(trees2, "phylo")) {
 
@@ -119,7 +142,6 @@ multiSPR = function(trees1, trees2,
 
   stop("Invalid tree input types")
 }
-
 
 '
 multiSPR = function(trees1, trees2,
