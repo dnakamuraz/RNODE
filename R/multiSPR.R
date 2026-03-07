@@ -1,19 +1,29 @@
 #' @title multiSPR
 #' @name multiSPR
-#' @description \code{multiSPR} computes SPR distances between two sets of binary trees (e.g. MPTs), \eqn{T_1 = \{\text{Tree}_1, \text{Tree}_2, \dots, \text{Tree}_n\}} and \eqn{T_2 = \{\text{Tree}_a, \text{Tree}_b, \dots, \text{Tree}_z\}}. The methods available are (1) randomly selecting one of the binary trees from each set (quick and naive), (2) estimating the mean SPR from all pairwise combinations between the two sets, and (3) estimating the minimum SPR from all pairwise combinations between the two sets. This function is useful when the two strict consensus trees exhibit polytomies. Both trees must contain the same set of leaves.
+#' @description \code{multiSPR} computes SPR distances between two sets of binary trees (e.g. MPTs), \eqn{T_1 = \{\text{Tree}_1, \text{Tree}_2, \dots, \text{Tree}_n\}} and \eqn{T_2 = \{\text{Tree}_a, \text{Tree}_b, \dots, \text{Tree}_z\}}. The methods available are (1) randomly selecting one of the binary trees from each set (quick and naive), (2) estimating the mean SPR from \eqn{n} pairwise combinations between the two sets, and (3) estimating the minimum SPR from \eqn{n} pairwise combinations between the two sets. This function is useful when the two strict consensus trees exhibit polytomies. Both trees must contain the same set of leaves.
 #' @author Daniel YM Nakamura
 #'
 #' @param trees1 A \code{phylo} or \code{multiPhylo} object with multiple trees that can be loaded using \code{ape::read.tree} for NEWICK files or \code{TreeTools::ReadTntTree} for TNT files. If the pool of MPTs presents binary and non-binary trees, only binary trees are processed.
 #' @param trees2 Another \code{phylo} or \code{multiPhylo} object.
 #' @param method Optional. Specify if SPR distances will be calculated by (1) \code{random} (default: selects one binary tree randomly from the multiPhylo object), (2) \code{meanSPR} (calculates mean of all pairwise SPR distances between two \code{multiPhylo} objects) or (3) \code{minSPR} (calculates the minimum values of all pairwise SPR distances between two \code{multiPhylo} objects. The option \code{meanSPR} can be slow if the number of MPTs is high.
 #' @param normalization Optional. Specify if SPR distances should be normalized using upper bound values (Ding et al. 2011). See details in \link{normalizedSPR}. By default, SPR distances are not normalized.
+#' @param subsample Optional. Specify if SPR distances will be calculated to only a fraction of the total number of trees available in each set (default = 1; i.e. all trees are evaluated). Zero values are not accepted.
 #'
 #' @references Ding, Y., Grünewald, S., Humphries, P.J., 2011. On agreement forests. J. Comb. Theory Ser. 118(7), 2059–2065.
 #'
 #' @export
 multiSPR = function(trees1, trees2,
                     method = "random",
-                    normalization = FALSE) {
+                    normalization = FALSE,
+                    subsample = 1) {
+
+  # Validate subsample
+  if (subsample <= 0) {
+    stop("subsample must be greater than 0")
+  }
+  if (subsample > 1) {
+    stop("subsample must be <= 1")
+  }
 
   # Keep only binary trees if multiPhylo
   if (inherits(trees1, "multiPhylo")) {
@@ -21,6 +31,18 @@ multiSPR = function(trees1, trees2,
   }
   if (inherits(trees2, "multiPhylo")) {
     trees2 <- trees2[sapply(trees2, is.binary)]
+  }
+
+  # Subsample trees if requested
+  if (subsample < 1) {
+    if (inherits(trees1, "multiPhylo")) {
+      n1 <- ceiling(length(trees1) * subsample)
+      trees1 <- trees1[sample(seq_along(trees1), n1)]
+    }
+    if (inherits(trees2, "multiPhylo")) {
+      n2 <- ceiling(length(trees2) * subsample)
+      trees2 <- trees2[sample(seq_along(trees2), n2)]
+    }
   }
 
   ##########

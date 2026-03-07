@@ -1,7 +1,7 @@
 Package: RNODE
 Type: Package
 Title: An R package for phylogenetic tree comparisons
-Version: 0.2
+Version: 0.2.0
 Author: Daniel Y. M. Nakamura, Taran Grant
 Maintainer: Daniel Y. M. Nakamura <dani_ymn@outlook.com>
 Description: RNODE implements pre-processing and post-processing tools for phylogenetic analyses.

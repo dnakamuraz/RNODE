@@ -17,7 +17,7 @@ If you use **RNODE**, please cite this repository.
 **RNODE** was tested in R. v. 4.5.2 and can be installed with the following command:
 
 ```
-devtools::install_github("danimelsz/RNODE")
+devtools::install_github("dnakamuraz/RNODE")
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ The following functions are available in **RNODE**:
 | Function                  | Class            | Description |
 |:--------------------------|:-----------------|:------------|
 | *compareBranchLength*     | Tree comparison  | Given two input trees, compare branch lengths of internal edges (shared clades) and terminal edges (shared leaves). The output is a dataframe with node labels and branch lengths.  |
-| *multiSPR*                | Tree comparison  | Given two sets of binary trees (e.g. MPTs), compute (normalized) SPR distances between two randomly selected trees or between all pairs of trees (summarized as mean or minimum values). |
+| *multiSPR*                | Tree comparison  | Given two sets of binary trees (e.g. MPTs), compute SPR distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values). |
 | *normalizedSPR*           | Tree comparison  | Given two binary trees, compute the normalized SPR distance using the upper bound from Ding et al. (2011). |
 | *retrodictNodes*          | Tree comparison  | Given two input trees, create a dataframe containing support values of one tree and clade occurrence  of another tree. |
 | *sharedNodes*             | Tree comparison  | Given two input trees, compare shared clades. The output is (1) basic statistics about the number of shared clades, support values and their correlation; (2) a dataframe with node labels, descendants, and support values of shared clades, which facilitates descriptive and statistical comparisons of clade composition and support between corresponding nodes.  |
