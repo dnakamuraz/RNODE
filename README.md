@@ -27,6 +27,8 @@ The following functions are available in **RNODE**:
 | Function                  | Class            | Description |
 |:--------------------------|:-----------------|:------------|
 | *compareBranchLength*     | Tree comparison  | Given two input trees, compare branch lengths of internal edges (shared clades) and terminal edges (shared leaves). The output is a dataframe with node labels and branch lengths.  |
+| *multiCID*                | Tree comparison  | Given two sets of binary trees (e.g. MPTs), compute CI distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values). |
+| *multiRF*                 | Tree comparison  | Given two sets of binary trees (e.g. MPTs), compute RF distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values). |
 | *multiSPR*                | Tree comparison  | Given two sets of binary trees (e.g. MPTs), compute SPR distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values). |
 | *normalizedSPR*           | Tree comparison  | Given two binary trees, compute the normalized SPR distance using the upper bound from Ding et al. (2011). |
 | *retrodictNodes*          | Tree comparison  | Given two input trees, create a dataframe containing support values of one tree and clade occurrence  of another tree. |
