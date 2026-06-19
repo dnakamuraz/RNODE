@@ -35,9 +35,9 @@ The following functions are available in **RNODE**:
 | *sharedNodes*             | Tree comparison  | Given two input trees, compare shared clades. The output is (1) basic statistics about the number of shared clades, support values and their correlation; (2) a dataframe with node labels, descendants, and support values of shared clades, which facilitates descriptive and statistical comparisons of clade composition and support between corresponding nodes.  |
 | *summaryTopologicalDist*  | Tree comparison  | Given two sets of trees, compute the number of shared clades, number of unique clades in each tree, Robinson-Foulds, and Cluster Information distance.  |
 | *uniqueNodes*             | Tree comparison  | Given two input trees, identify unique clades. The output is two lists containing unique clades and support values in each tree.  |
+| *addREP*                  | Tree handling    | Given one alignment and one tree with Goodman-Bremer support values, compute the ratio of explanatory power (REP). |
 | *mapBranchLength*         | Tree handling    | Given one tree without branch lengths (e.g. strict consensus) and another tree(s) with branch lengths (e.g. MPTs), map the branch lengths from the latter to the former. |
 | *mapSupport*              | Tree handling    | Given one tree with support values (e.g. majority consensus of bootstrap trees) and another tree without support values (e.g. strict consensus of optimal trees), map the support values from the former to the latter. |
-| *rep*                     | Tree handling    | Given one alignment and one tree with Goodman-Bremer support values, compute the ratio of explanatory power (REP). |
 | *findEqualLength*         | Matrix handling  | Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG. |
 | *filterInvariants*        | Matrix handling  | Given a matrix, delete characters containing only invariants. |
 | *filterMissing*           | Matrix handling  | Given a matrix, delete taxa and/or characters containing only missing data (?). |

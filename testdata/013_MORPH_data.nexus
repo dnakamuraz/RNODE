@@ -1,0 +1,215 @@
+#NEXUS
+[written Fri Oct 11 14:07:53 EDT 2024 by Mesquite  version 3.81 (build 955) at MacBook-Pro.local/172.16.63.189]
+
+BEGIN TAXA;
+	TITLE Taxa;
+	DIMENSIONS NTAX=37;
+	TAXLABELS
+		Amphiporus Cerebratulus Anadara Aplysia Biomphalaria Bruber Buccinum Capitella Chaetoderma Chaetopleura Chaetopterus Coryphella Crassostrea Crepidula Genitoconia Glottidia Gukensia Haliotis Leech Leptochiton Lingula Littorina Lottia Lumbricus Macrocallista Mcaliforianus Medulis Mercenaria Modiolus Neptunea Nereis Nucula Strombus Terebratalia terebratulina Tlineata Antalis 
+	;
+
+END;
+
+
+BEGIN CHARACTERS;
+	TITLE  Character_Matrix;
+	DIMENSIONS  NCHAR=134;
+	FORMAT DATATYPE = STANDARD RESPECTCASE GAP = - MISSING = ? SYMBOLS = "  0 1 2 3 4";
+	MATRIX
+	Amphiporus     0--000-000-------------?0--------------------------?---0-----?00-1-0--1000------?010-01-000-000-00-00001-00--1010---------------------
+	Cerebratulus   0--000-000-------------?0------------------------------0-----?00-1-0--1000------?010-01-000-000-00-00001-00--1010---------------------
+	Anadara        0------10111000----0----0----000----??????-----0-000110000?00000-2110001010-0--10111001-000?000-00-00000000-0001110101001010?110000000
+	Aplysia        0------10111000----0----11111000----??????-----11001000000000011000100110???0????111001-000?000-00-00000000-00000--------------------0
+	Biomphalaria   0------10111000----0----11111000----??????-----100010000000000110001001100-------111001-000?000-00-00000000-00000-------00-----------0
+	Bruber         10011011011011111011010-111111111100121022121110-000000000--0000-00110110113110101111010000?000000-00000000000010-------00-----------0
+	Buccinum       0------10111000----0----11111000----??????-----1101100000000001110010011010-0--??111001-000?000-00-00000000-00000-------00-----------0
+	Capitella      11000--000--------------0--?-----------------------0---0------00-1-0--0000-------110-111110-100000-00000-00--1110---------------------
+	Chaetoderma    1001?0?001100010--00----121010-0-------------------0--00------00-1-10100110-0--101111010000-000000-00000-00--0010--------------------0
+	Chaetopleura   11011011011011110011010-111111111110120022121110-000000000--0000-0-110110113110101111010000-?00000-00000000000010-------00-----------0
+	Chaetopterus   11000--000--000---------0--------------------------0---0------00-1-0--0000-------110-1111111100000-00100-00--1110---------------------
+	Coryphella     0------100-1000----0----11111000---------------?-00100000000001110010011010-0--??111001-000-000-00-00000000-00000--------------------0
+	Crassostrea    0------101(0 1)1000----0----0----000---------------0-000110000?00000-2110001010-0--10111001-000-000-00-00000000-00010-00-10-1010220--0---0
+	Crepidula      0------10111000----0----11111000---------------1100100000000001102110011010-0--??111001-000-000-00-00000000-00000-------00-----------0
+	Genitoconia    100111-0011000?0---0----1100-----------------------0-000------00-1-1011110--0--?01111010000-000000-00000-00--0010--------------------0
+	Glottidia      11000--110-0110----0----0-----------102102-----0-0000-0000--0000-?00--0000-------000-100000-000000-00000111000000-------00------------
+	Gukensia       0------10111000----0----0----000----??????-----0-000110000?00000-2110001010-0--10111001-000-000-00-00000000-00011001110010???10--0---?
+	Haliotis       0------10111000----0----11111000----??????-----1100100000000001100010011010-0--10111001-000-000-00-00000000-00000-------00-----------0
+	Leech          11000--000--000---------0--------------------------0---0------00-1-0--0000-------110-111110?000000-01100-00--1110---------------------
+	Leptochiton    10011011011011111011010-11111110---0120022121110-000000000--0000-00110110113101101111010000?000000-00000000000010-------00-----------0
+	Lingula        11000--110-0110----0----0-----------102102-----0-0000-0000--0000-?00--0000-------000-100000?000000-00000111000000-------00------------
+	Littorina      0------10111000----0----11111000---------------1100100000000001110010011010-0--01111001-000-000-00-00000000-00000-------00-----------0
+	Lottia         0------10111000----0----11011000---------------0-00100000000001100010011010-0--01111001-000-000-00-00000000-00000-------00-----------0
+	Lumbricus      11000--000--000---------0----?---------------------0---0------00-1-0--0000-------110-111110-000000-01100-00--1110---------------------
+	Macrocallista  0------10111000----0----0----000---------------0-000110000-00000-2110001010-0--10111001-000-000-00-00000000-00010-01010011114111-01001
+	Mcaliforianus  0------101(0 1)1000----0----0----000---------------0-000110000-00000-2110001010-0--10111001-000-000-00-00000000-0001100111001011410--0---1
+	Medulis        0------101(0 1)1000----0----0----000---------------0-000110000-00000-2110001010-0--10111001-000-000-00-00000000-0001100111001011410--0---1
+	Mercenaria     0------10111000----0----0----000---------------0-000110000?00000-2110001010-0--10111001-000-000-00-00000000-00010-01010011114111-01??1
+	Modiolus       0------10111000----0----0----000---------------0-000110000?00000-2110001010-0--10111001-000-000-00-00000000-0001100111001011410--0---?
+	Neptunea       0------10111000----0----11111000---------------1101100000000001110010011010----??111001-000-000-00-00000000-00000-------00-----------0
+	Nereis         11000--000----0---------0-------------------------?0---0------00-1-0--0000-------110-1111110101111110110-00--1110---------------------
+	Nucula         0------10111000----0----0----000---------------0-0001100-0-00000-2110001011-0--10111001-000-000-00-00000000-00010-010100100-0210000000
+	Strombus       0------10111000----0----11111000----??????-----1111100000000001110010011010-0--??111001-000-000-00-00000000-00000-------00-----------0
+	Terebratalia   11000--10100110----0----0-----------102102-----0-0000-0000--0000-?0???0000---??--000-100000-000000-000000111000?0-------00------------
+	terebratulina  11000--10100110----0----0-----------102102-----0-0000-0000--0000-?0???0000---??--000-100000-000000-000000111000?0-------00------------
+	Tlineata       10011011011011111011010-111111111100121022121110-000000000--0000-00110110103110101111010000-000000-00000000000010-------00-----------0
+	Antalis        0------10111000----0----11111000-------------?-0-000011101110100-2110001000------1110010000-000-00-00000000-00000--------?-----------1
+
+;
+
+END;
+begin mrbayes;
+	set autoclose = yes nowarn = yes;
+	exclude 3 6 7 17 18 19 21 22 23 24 26 29 33 34 35 36 37 42 43 44 45 46 47 49 50 55 56 57 58 59 60 61 62 76 78 79 92 94 95 96 97 98 99 100 103 109 114 115 116 118 119 120 123 125 129 130 132 133;
+	lset coding = informative rates = gamma;
+	set usebeagle = yes beagledevice = CPU beagleprecision = double beaglescaling = always beaglesse = no;
+	mcmcp temp = 0.1 nchain = 4 samplefreq = 500 printfr = 1000 nruns = 2 append = no;
+	mcmcp filename = 003_mollusc_morph;
+	mcmc ngen = 5000000;
+sumt relburnin = yes burninfrac = 0.25;
+sumt Contype = Allcompat relburnin = yes Outputname = 003_mollusc_morph.allcompat burninfrac = 0.25;
+sump relburnin = yes burninfrac = 0.25;
+
+END;
+BEGIN ASSUMPTIONS;
+	TYPESET * UNTITLED   =  unord:  1- 134;
+
+END;
+
+BEGIN MESQUITECHARMODELS;
+	ProbModelSet * UNTITLED   =  'Mk1 (est.)':  1- 134;
+END;
+
+Begin MESQUITE;
+		MESQUITESCRIPTVERSION 2;
+		TITLE AUTO;
+		tell ProjectCoordinator;
+		timeSaved 1728670078154;
+		getEmployee #mesquite.minimal.ManageTaxa.ManageTaxa;
+		tell It;
+			setID 0 823083035655278013;
+		endTell;
+		getEmployee #mesquite.charMatrices.ManageCharacters.ManageCharacters;
+		tell It;
+			setID 0 1269252974070168196;
+			mqVersion 381;
+			checksumv 0 3 871299309 null  getNumChars 134 numChars 134 getNumTaxa 37 numTaxa 37   short true   bits 31   states 31   sumSquaresStatesOnly 7368.0 sumSquares 7368.0 longCompressibleToShort false usingShortMatrix true   NumFiles 1 NumMatrices 1;
+			mqVersion;
+		endTell;
+		getWindow;
+		tell It;
+			suppress;
+			setResourcesState false false 155;
+			setPopoutState 300;
+			setExplanationSize 0;
+			setAnnotationSize 0;
+			setFontIncAnnot 0;
+			setFontIncExp 0;
+			setSize 700 464;
+			setLocation 8 25;
+			setFont SanSerif;
+			setFontSize 10;
+			getToolPalette;
+			tell It;
+			endTell;
+			desuppress;
+		endTell;
+		getEmployee  #mesquite.charMatrices.BasicDataWindowCoord.BasicDataWindowCoord;
+		tell It;
+			showDataWindow #1269252974070168196 #mesquite.charMatrices.BasicDataWindowMaker.BasicDataWindowMaker;
+			tell It;
+				getWindow;
+				tell It;
+					setExplanationSize 30;
+					setAnnotationSize 20;
+					setFontIncAnnot 0;
+					setFontIncExp 0;
+					setSize 545 392;
+					setLocation 8 25;
+					setFont SanSerif;
+					setFontSize 10;
+					getToolPalette;
+					tell It;
+					endTell;
+					setActive;
+					setTool mesquite.charMatrices.BasicDataWindowMaker.BasicDataWindow.arrow;
+					colorCells  #mesquite.charMatrices.NoColor.NoColor;
+					colorRowNames  #mesquite.charMatrices.TaxonGroupColor.TaxonGroupColor;
+					colorColumnNames  #mesquite.charMatrices.CharGroupColor.CharGroupColor;
+					colorText  #mesquite.charMatrices.NoColor.NoColor;
+					setBackground White;
+					toggleShowNames on;
+					toggleShowTaxonNames on;
+					toggleTight off;
+					toggleThinRows off;
+					toggleShowChanges on;
+					toggleSeparateLines off;
+					toggleShowStates on;
+					toggleReduceCellBorders off;
+					toggleAutoWCharNames on;
+					toggleAutoTaxonNames off;
+					toggleShowDefaultCharNames off;
+					toggleConstrainCW on;
+					toggleBirdsEye off;
+					toggleColorOnlyTaxonNames off;
+					toggleShowPaleGrid off;
+					toggleShowPaleCellColors off;
+					toggleShowPaleExcluded off;
+					togglePaleInapplicable on;
+					togglePaleMissing off;
+					toggleShowBoldCellText off;
+					toggleAllowAutosize on;
+					toggleColorsPanel off;
+					toggleDiagonal on;
+					setDiagonalHeight 80;
+					toggleLinkedScrolling on;
+					toggleScrollLinkedTables off;
+				endTell;
+				showWindow;
+				getWindow;
+				tell It;
+					forceAutosize;
+				endTell;
+				getEmployee #mesquite.charMatrices.AlterData.AlterData;
+				tell It;
+					toggleBySubmenus off;
+				endTell;
+				getEmployee #mesquite.charMatrices.ColorByState.ColorByState;
+				tell It;
+					setStateLimit 9;
+					toggleUniformMaximum on;
+				endTell;
+				getEmployee #mesquite.charMatrices.ColorCells.ColorCells;
+				tell It;
+					setColor Red;
+					removeColor off;
+				endTell;
+				getEmployee #mesquite.categ.StateNamesStrip.StateNamesStrip;
+				tell It;
+					showStrip off;
+				endTell;
+				getEmployee #mesquite.charMatrices.AnnotPanel.AnnotPanel;
+				tell It;
+					togglePanel off;
+				endTell;
+				getEmployee #mesquite.charMatrices.CharReferenceStrip.CharReferenceStrip;
+				tell It;
+					showStrip off;
+				endTell;
+				getEmployee #mesquite.charMatrices.QuickKeySelector.QuickKeySelector;
+				tell It;
+					autotabOff;
+				endTell;
+				getEmployee #mesquite.charMatrices.SelSummaryStrip.SelSummaryStrip;
+				tell It;
+					showStrip off;
+				endTell;
+				getEmployee #mesquite.categ.SmallStateNamesEditor.SmallStateNamesEditor;
+				tell It;
+					panelOpen true;
+				endTell;
+			endTell;
+		endTell;
+		endTell;
+end;
+
+

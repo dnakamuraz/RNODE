@@ -244,6 +244,38 @@ outC
 a = splitNoStates(input = "../testdata/015_MORPH_data.nexus", input_format = "nexus", output_index = "../testdata/015_MORPH_data", ambiguity_addState = T, inapplicable_addState = T, log=T, write=T)
 ```
 
+The function *filterSharedTaxa* filters two morphological or molecular matrices to keep only shared taxa (rows) between them. This is useful when performing analyses with concatenated matrices or when comparing datasets with different taxon coverage. The function can output the filtered matrices either concatenated into a single file or as separate files, depending on the *output_concatenate* parameter.
+
+```{r}
+# Create a synthetic example with two matrices containing some shared taxa
+# Load the morphological matrix
+mat_full <- TreeTools::ReadCharacters("../testdata/015_MORPH_data.nexus")
+
+# Create matrix 1: first 10 taxa
+mat1 <- mat_full[1:10, ]
+
+# Create matrix 2: last 12 taxa (with 2 shared taxa with mat1)
+mat2 <- mat_full[9:18, ]
+
+cat("Matrix 1 taxa:", rownames(mat1), "\n")
+cat("Matrix 2 taxa:", rownames(mat2), "\n")
+cat("Shared taxa:", intersect(rownames(mat1), rownames(mat2)), "\n\n")
+
+# Example 1: Concatenated output
+filterSharedTaxa(input1 = mat1, 
+                 input2 = mat2,
+                 output_path="../testdata/shared_taxa",
+                 output_concatenate=TRUE)
+```
+
+```{r}
+# Example 2: Separated output
+filterSharedTaxa(input1 = mat1, 
+                 input2 = mat2,
+                 output_path="testdata/shared_taxa_sep",
+                 output_concatenate=FALSE)
+```
+
 ## 3.2 Find equal-length partitions
 
 Given multiple gene alignments, *findEqualLength* identifies gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG.

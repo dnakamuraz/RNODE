@@ -3,6 +3,7 @@
 export(compareBranchLength)
 export(filterInvariants)
 export(filterMissing)
+export(filterSharedTaxa)
 export(mapBranchLength)
 export(mapSupport)
 export(multiCID)
