@@ -1,7 +1,7 @@
 ---
 title: "RNODE"
 author: "Daniel YM Nakamura, Ward Wheeler, Taran Grant"
-date: "5 November 2025"
+date: "19 June 2026"
 output: html_document
 ---
 
@@ -192,7 +192,7 @@ filterMissing(input="../testdata/test_filterMissing.nexus",
               missing="both")
 ```
 
-The function *filterInvariants* deletes invariant characters, which is useful to accelerate the graph searches. In Maximum Likelihood and Bayesian analyses using the MKv model with ascertainment bias correction (ASC), invariants must be deleted. Here, we follow the definition of invariant from IQ-Tree, characterized by: (1) constant sites containing only a single character state in all sequences, (2) partially constant sites (N and/or -), and (3) ambiguously constant sites (e.g. C, Y and -). In the following example, 122 invariants are detected.
+The function *filterInvariants* deletes invariant characters, which is useful to accelerate the graph searches in parsimony analyses without affecting tree choice. In Maximum Likelihood and Bayesian analyses using the MKv model with ascertainment bias correction (ASC), invariants must be deleted. Here, we follow the definition of invariant from IQ-Tree, characterized by: (1) constant sites containing only a single character state in all sequences, (2) partially constant sites (N and/or -), and (3) ambiguously constant sites (e.g. C, Y and -). In the following example, 122 invariants are detected.
 
 ```{r}
 filterInvariants(input="../testdata/015_MORPH_data.nexus",

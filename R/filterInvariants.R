@@ -104,9 +104,8 @@ filterInvariants <- function(input, input_format, output_index) {
   # --- Output file ---
   output_name <- paste0(output_index, "_onlyVARIANTS.nexus")
 
-  # Prepare data for TreeTools output
-  df <- as.data.frame(filtered)
-  write.nexus.data(df, file = output_name, format = "standard", interleaved = FALSE)
+  # Keep the matrix orientation: rows are taxa, columns are characters.
+  write.nexus.data(filtered, file = output_name, format = "standard", interleaved = FALSE)
 
   # Fix IQ-TREE incompatibility
   lines <- readLines(output_name)

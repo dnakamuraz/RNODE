@@ -41,6 +41,7 @@ The following functions are available in **RNODE**:
 | *findEqualLength*         | Matrix handling  | Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG. |
 | *filterInvariants*        | Matrix handling  | Given a matrix, delete characters containing only invariants. |
 | *filterMissing*           | Matrix handling  | Given a matrix, delete taxa and/or characters containing only missing data (?). |
+| *filterSharedTaxa*        | Matrix handling  | Given two molecular or morphological matrices, filter taxa using shared taxa only, shared taxa plus taxa unique to input 1, or shared taxa plus taxa unique to input 2. |
 | *splitNoStates*           | Matrix handling  | Given a morphological matrix, split it based on the number of character-states for MK(v) models. |
 | *splitOrdFromUnord*       | Matrix handling  | Given a morphological matrix and a list of ordered and unordered characters, split the matrix into two matrices. |
 
@@ -229,6 +230,33 @@ filterInvariants(input="../testdata/015_MORPH_data.nexus",
                  input_format = "nexus",
                  output_index="../testdata/015_MORPH_data")
 ```
+
+The function *filterSharedTaxa* filters two molecular or morphological matrices by taxon overlap. The parameter `level` controls whether the output keeps only shared taxa, shared taxa plus taxa unique to input 1, or shared taxa plus taxa unique to input 2. When a taxon is retained from only one input, the missing row in the other matrix is filled with `?`.
+
+```
+# Keep only taxa shared by the two matrices
+filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt", input1_format="tnt",
+                 input2="../testdata/013_MOL_data.tnt", input2_format="tnt",
+                 output_path="../testdata/013_TE_data2.tnt",
+                 output_concatenate=TRUE,
+                 level="strictly_shared")
+
+# Keep shared taxa plus taxa unique to input1
+filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt", input1_format="tnt",
+                 input2="../testdata/013_MOL_data.tnt", input2_format="tnt",
+                 output_path="../testdata/013_TE_unique1.tnt",
+                 output_concatenate=TRUE,
+                 level="shared+unique1")
+
+# Keep shared taxa plus taxa unique to input2
+filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt", input1_format="tnt",
+                 input2="../testdata/013_MOL_data.tnt", input2_format="tnt",
+                 output_path="../testdata/013_TE_unique2.tnt",
+                 output_concatenate=TRUE,
+                 level="shared+unique2")
+```
+
+If one of the input matrices contains protein data and the output is TNT, *filterSharedTaxa* writes the TNT header `nstates 32`.
 
 The function *splitOrdFromUnord* splits a morphological matrix into partitions of ordered and unordered characters based on a list of ordered characters.
 
