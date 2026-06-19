@@ -11,7 +11,8 @@ filterSharedTaxa(
   input2_format,
   output_path = NULL,
   output_concatenate = TRUE,
-  return_as_list = FALSE
+  return_as_list = FALSE,
+  level = "strictly_shared"
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ filterSharedTaxa(
 \item{output_concatenate}{Logical. If TRUE (default), concatenates the filtered matrices. If FALSE, returns them separately.}
 
 \item{return_as_list}{Logical. If TRUE, returns the result as a list of matrices instead of writing to file. Default is FALSE.}
+
+\item{level}{Taxon filtering level. Use 'strictly_shared' to keep only taxa shared by input1 and input2, 'shared+unique1' to keep shared taxa plus taxa unique to input1, or 'shared+unique2' to keep shared taxa plus taxa unique to input2. Missing data for taxa absent from one matrix are filled with '?'.}
 }
 \description{
-Filter two morphological matrices to keep only shared taxa (rows). Can output concatenated or separated matrices in NEXUS or TNT format.
+Filter two molecular or morphological matrices by shared and unique taxa (rows). Can output concatenated or separated matrices in NEXUS or TNT format.
 }
 \examples{
 # Example with concatenated NEXUS output
@@ -41,7 +44,8 @@ filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
 # Example with concatenated TNT output (protein data)
 filterSharedTaxa(input1="testdata/013_MORPH_data.tnt", input1_format="tnt",
                  input2="testdata/013_MOL_data.tnt", input2_format="tnt",
-                 output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE)
+                 output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE,
+                 level="strictly_shared")
 
 # Example with separated output
 filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",

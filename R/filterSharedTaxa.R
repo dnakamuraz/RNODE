@@ -1,6 +1,6 @@
 #' @title filterSharedTaxa
 #' @name filterSharedTaxa
-#' @description Filter two morphological matrices to keep only shared taxa (rows). Can output concatenated or separated matrices in NEXUS or TNT format.
+#' @description Filter two molecular or morphological matrices by shared and unique taxa (rows). Can output concatenated or separated matrices in NEXUS or TNT format.
 #' @author Daniel YM Nakamura
 #' @param input1 First input file (molecular or morphological matrix in nexus, fasta, or tnt format) or already loaded as a matrix object in R.
 #' @param input1_format To load from a local file: 'nexus', 'fasta', or 'tnt'.
@@ -9,6 +9,7 @@
 #' @param output_path Output path. If output ends with .tnt, writes TNT format; otherwise writes NEXUS format. For example: "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (NEXUS) or for TNT "Desktop/Index" will output "Desktop/Index.tnt" (TNT, concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (TNT, separated). If NULL, returns matrices as a list without writing files.
 #' @param output_concatenate Logical. If TRUE (default), concatenates the filtered matrices. If FALSE, returns them separately.
 #' @param return_as_list Logical. If TRUE, returns the result as a list of matrices instead of writing to file. Default is FALSE.
+#' @param level Taxon filtering level. Use 'strictly_shared' to keep only taxa shared by input1 and input2, 'shared+unique1' to keep shared taxa plus taxa unique to input1, or 'shared+unique2' to keep shared taxa plus taxa unique to input2. Missing data for taxa absent from one matrix are filled with '?'.
 #' @examples
 #' # Example with concatenated NEXUS output
 #' filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
@@ -18,7 +19,8 @@
 #' # Example with concatenated TNT output (protein data)
 #' filterSharedTaxa(input1="testdata/013_MORPH_data.tnt", input1_format="tnt",
 #'                  input2="testdata/013_MOL_data.tnt", input2_format="tnt",
-#'                  output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE)
+#'                  output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE,
+#'                  level="strictly_shared")
 #'
 #' # Example with separated output
 #' filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
@@ -30,7 +32,10 @@ filterSharedTaxa <- function(input1, input1_format,
                              input2, input2_format,
                              output_path = NULL,
                              output_concatenate = TRUE,
-                             return_as_list = FALSE) {
+                             return_as_list = FALSE,
+                             level = "strictly_shared") {
+
+  level <- match.arg(level, choices = c("strictly_shared", "shared+unique1", "shared+unique2"))
 
   # Helper function to convert DNAbin to matrix with padding for unequal lengths
   dnabin_to_matrix <- function(dnabin_obj) {
@@ -75,8 +80,8 @@ filterSharedTaxa <- function(input1, input1_format,
   # Helper function to detect data type from TNT file
   detect_format_from_tnt <- function(tnt_file) {
     lines <- tolower(readLines(tnt_file, n = 10))  # Read first 10 lines
-    # Look for "nstates prot" declaration
-    if (any(grepl("nstates\\s+prot", lines))) {
+    # Look for protein state declarations
+    if (any(grepl("nstates\\s+(prot|32)", lines))) {
       return("protein")
     }
     # Check if lines contain protein-specific amino acids in the data
@@ -112,7 +117,7 @@ filterSharedTaxa <- function(input1, input1_format,
     
     # Extract sequence lines
     seq_lines <- c()
-    current_line <- 4  # Skip xread, header, and first empty line
+    current_line <- 3  # Skip xread and header
     for (i in 1:ntaxa) {
       # Find line with taxon name (contains tab or space followed by data)
       while (current_line <= length(lines) && (lines[current_line] == "" || grepl("^&\\s*\\[", lines[current_line]))) {
@@ -135,6 +140,12 @@ filterSharedTaxa <- function(input1, input1_format,
       if (length(parts) == 2) {
         taxa_names <- c(taxa_names, trimws(parts[1]))
         sequences <- c(sequences, parts[2])
+      } else {
+        parts <- strsplit(trimws(seq_line), "\\s+", perl = TRUE)[[1]]
+        if (length(parts) >= 2) {
+          taxa_names <- c(taxa_names, parts[1])
+          sequences <- c(sequences, paste(parts[-1], collapse = ""))
+        }
       }
     }
     
@@ -195,6 +206,25 @@ filterSharedTaxa <- function(input1, input1_format,
     has_protein || (length(non_dna) > 0)
   }
 
+  # Helper function to add rows of missing data for taxa absent from a matrix
+  align_matrix_to_taxa <- function(mat, taxa) {
+    aligned <- matrix("?", nrow = length(taxa), ncol = ncol(mat),
+                      dimnames = list(taxa, colnames(mat)))
+    present_taxa <- intersect(taxa, rownames(mat))
+    aligned[present_taxa, ] <- mat[present_taxa, , drop = FALSE]
+    aligned
+  }
+
+  # Helper function to write TNT format
+  write_tnt_lines <- function(lines, filename) {
+    if (length(lines) > 0 && lines[1] == "nstates 32") {
+      text <- paste0(lines[1], "\n", paste(lines[-1], collapse = "\r\n"), "\r\n")
+      writeBin(charToRaw(text), filename)
+    } else {
+      writeLines(lines, filename, sep = "\r\n")
+    }
+  }
+
   # Helper function to write TNT format
   write_tnt_format <- function(mat, filename, is_protein = FALSE) {
     ntaxa <- nrow(mat)
@@ -202,6 +232,9 @@ filterSharedTaxa <- function(input1, input1_format,
     
     # Create TNT output lines (header is nchars ntaxa, NOT ntaxa nchars)
     lines <- c("xread", paste(nchars, ntaxa))
+    if (is_protein) {
+      lines <- c("nstates 32", lines)
+    }
     
     # Add protein block header if needed
     if (is_protein) {
@@ -220,8 +253,8 @@ filterSharedTaxa <- function(input1, input1_format,
     # Add footer
     lines <- c(lines, ";", "", "", "proc /;", "comments 0", ";", "", "")
     
-    # Write to file with CRLF line endings
-    writeLines(lines, filename, sep = "\r\n")
+    # Write to file with TNT line endings
+    write_tnt_lines(lines, filename)
   }
 
   # Helper function to write TNT format with multiple blocks (for concatenation)
@@ -233,6 +266,9 @@ filterSharedTaxa <- function(input1, input1_format,
     
     # Create TNT output lines (header is nchars ntaxa, NOT ntaxa nchars)
     lines <- c("xread", paste(total_nchars, ntaxa))
+    if (format1 == "protein" || format2 == "protein") {
+      lines <- c("nstates 32", lines)
+    }
     
     # Determine block headers
     block1_header <- if (format1 == "protein") "& [prot]" else "& [num]"
@@ -286,8 +322,8 @@ filterSharedTaxa <- function(input1, input1_format,
     # Add footer
     lines <- c(lines, ";", "", "", "proc /;", "comments 0", ";", "", "")
     
-    # Write to file with CRLF line endings
-    writeLines(lines, filename, sep = "\r\n")
+    # Write to file with TNT line endings
+    write_tnt_lines(lines, filename)
   }
 
   # Track format types for concatenation
@@ -368,19 +404,30 @@ filterSharedTaxa <- function(input1, input1_format,
 
   # Find shared taxa
   shared_taxa <- intersect(taxa1, taxa2)
+  unique_taxa1 <- setdiff(taxa1, taxa2)
+  unique_taxa2 <- setdiff(taxa2, taxa1)
 
-  if (length(shared_taxa) == 0) {
-    stop("No shared taxa found between the two matrices")
+  selected_taxa <- switch(level,
+                          strictly_shared = shared_taxa,
+                          `shared+unique1` = taxa1,
+                          `shared+unique2` = taxa2)
+
+  if (length(selected_taxa) == 0) {
+    stop("No taxa selected with the requested level")
   }
 
   cat("Total taxa in matrix 1:", length(taxa1), "\n")
   cat("Total taxa in matrix 2:", length(taxa2), "\n")
   cat("Shared taxa:", length(shared_taxa), "\n")
+  cat("Unique taxa in matrix 1:", length(unique_taxa1), "\n")
+  cat("Unique taxa in matrix 2:", length(unique_taxa2), "\n")
+  cat("Level:", level, "\n")
+  cat("Selected taxa:", length(selected_taxa), "\n")
   cat("Shared taxa:", paste(shared_taxa, collapse = ", "), "\n\n")
 
-  # Filter matrices to keep only shared taxa
-  mat1_filtered <- mat1[shared_taxa, ]
-  mat2_filtered <- mat2[shared_taxa, ]
+  # Filter matrices to keep the selected taxa, filling absent rows with missing data
+  mat1_filtered <- align_matrix_to_taxa(mat1, selected_taxa)
+  mat2_filtered <- align_matrix_to_taxa(mat2, selected_taxa)
 
   # Return as list if requested
   if (return_as_list) {
