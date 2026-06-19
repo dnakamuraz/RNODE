@@ -10,6 +10,7 @@ filterSharedTaxa(
   input2,
   input2_format,
   output_path = NULL,
+  output_format = NULL,
   output_concatenate = TRUE,
   return_as_list = FALSE,
   level = "strictly_shared"
@@ -24,7 +25,9 @@ filterSharedTaxa(
 
 \item{input2_format}{To load from a local file: 'nexus', 'fasta', or 'tnt'.}
 
-\item{output_path}{Output path. If output ends with .tnt, writes TNT format; otherwise writes NEXUS format. For example: "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (NEXUS) or for TNT "Desktop/Index" will output "Desktop/Index.tnt" (TNT, concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (TNT, separated). If NULL, returns matrices as a list without writing files.}
+\item{output_path}{Output path. For NEXUS output, "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (concatenated) or "Desktop/Index_SHARED_1.nexus" and "Desktop/Index_SHARED_2.nexus" (separated). For TNT output, "Desktop/Index" will output "Desktop/Index.tnt" (concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (separated). If NULL, returns matrices as a list without writing files.}
+
+\item{output_format}{Output file format: 'nexus' or 'tnt'. If NULL (default), the format is inferred from output_path: paths ending in .tnt write TNT; all others write NEXUS.}
 
 \item{output_concatenate}{Logical. If TRUE (default), concatenates the filtered matrices. If FALSE, returns them separately.}
 
@@ -44,7 +47,8 @@ filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
 # Example with concatenated TNT output (protein data)
 filterSharedTaxa(input1="testdata/013_MORPH_data.tnt", input1_format="tnt",
                  input2="testdata/013_MOL_data.tnt", input2_format="tnt",
-                 output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE,
+                 output_path="testdata/013_TE_data", output_format="tnt",
+                 output_concatenate=TRUE,
                  level="strictly_shared")
 
 # Example with separated output

@@ -6,7 +6,8 @@
 #' @param input1_format To load from a local file: 'nexus', 'fasta', or 'tnt'.
 #' @param input2 Second input file (molecular or morphological matrix in nexus, fasta, or tnt format) or already loaded as a matrix object in R.
 #' @param input2_format To load from a local file: 'nexus', 'fasta', or 'tnt'.
-#' @param output_path Output path. If output ends with .tnt, writes TNT format; otherwise writes NEXUS format. For example: "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (NEXUS) or for TNT "Desktop/Index" will output "Desktop/Index.tnt" (TNT, concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (TNT, separated). If NULL, returns matrices as a list without writing files.
+#' @param output_path Output path. For NEXUS output, "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (concatenated) or "Desktop/Index_SHARED_1.nexus" and "Desktop/Index_SHARED_2.nexus" (separated). For TNT output, "Desktop/Index" will output "Desktop/Index.tnt" (concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (separated). If NULL, returns matrices as a list without writing files.
+#' @param output_format Output file format: 'nexus' or 'tnt'. If NULL (default), the format is inferred from output_path: paths ending in .tnt write TNT; all others write NEXUS.
 #' @param output_concatenate Logical. If TRUE (default), concatenates the filtered matrices. If FALSE, returns them separately.
 #' @param return_as_list Logical. If TRUE, returns the result as a list of matrices instead of writing to file. Default is FALSE.
 #' @param level Taxon filtering level. Use 'strictly_shared' to keep only taxa shared by input1 and input2, 'shared+unique1' to keep shared taxa plus taxa unique to input1, or 'shared+unique2' to keep shared taxa plus taxa unique to input2. Missing data for taxa absent from one matrix are filled with '?'.
@@ -19,7 +20,8 @@
 #' # Example with concatenated TNT output (protein data)
 #' filterSharedTaxa(input1="testdata/013_MORPH_data.tnt", input1_format="tnt",
 #'                  input2="testdata/013_MOL_data.tnt", input2_format="tnt",
-#'                  output_path="testdata/013_TE_data.tnt", output_concatenate=TRUE,
+#'                  output_path="testdata/013_TE_data", output_format="tnt",
+#'                  output_concatenate=TRUE,
 #'                  level="strictly_shared")
 #'
 #' # Example with separated output
@@ -31,11 +33,15 @@
 filterSharedTaxa <- function(input1, input1_format,
                              input2, input2_format,
                              output_path = NULL,
+                             output_format = NULL,
                              output_concatenate = TRUE,
                              return_as_list = FALSE,
                              level = "strictly_shared") {
 
   level <- match.arg(level, choices = c("strictly_shared", "shared+unique1", "shared+unique2"))
+  if (!is.null(output_format)) {
+    output_format <- match.arg(output_format, choices = c("nexus", "tnt"))
+  }
 
   # Helper function to convert DNAbin to matrix with padding for unequal lengths
   dnabin_to_matrix <- function(dnabin_obj) {
@@ -442,7 +448,12 @@ filterSharedTaxa <- function(input1, input1_format,
   # Write to file if output_path is provided
   if (!is.null(output_path)) {
     # Determine if output should be TNT format
-    is_tnt_output <- grepl("\\.tnt$", output_path, ignore.case = TRUE)
+    if (is.null(output_format)) {
+      output_file_format <- if (grepl("\\.tnt$", output_path, ignore.case = TRUE)) "tnt" else "nexus"
+    } else {
+      output_file_format <- output_format
+    }
+    is_tnt_output <- output_file_format == "tnt"
     
     if (output_concatenate) {
       # Concatenate matrices
@@ -457,12 +468,12 @@ filterSharedTaxa <- function(input1, input1_format,
         output_name <- paste0(output_path, "_SHARED.nexus")
       }
 
-      # Determine output format (use protein if either input is protein, DNA if either is DNA, else standard)
-      output_format <- "standard"
+      # Determine NEXUS data type (use protein if either input is protein, DNA if either is DNA, else standard)
+      nexus_data_format <- "standard"
       if (format1 == "protein" || format2 == "protein") {
-        output_format <- "protein"
+        nexus_data_format <- "protein"
       } else if (format1 == "DNA" || format2 == "DNA") {
-        output_format <- "DNA"
+        nexus_data_format <- "DNA"
       }
 
       if (is_tnt_output) {
@@ -472,11 +483,11 @@ filterSharedTaxa <- function(input1, input1_format,
         cat("Format: TNT (blocks: ", format1, " +", format2, ")\n")
       } else {
         # Write NEXUS format
-        write.nexus.data(result_mat, file = output_name, format = output_format, interleaved = F)
+        write.nexus.data(result_mat, file = output_name, format = nexus_data_format, interleaved = F)
         temp <- gsub("INTERLEAVE=NO", "", readLines(output_name))
         writeLines(temp, output_name)
         cat("Concatenated matrix written to:", output_name, "\n")
-        cat("Format:", output_format, "\n")
+        cat("Format:", nexus_data_format, "\n")
       }
     } else {
       # Separate outputs

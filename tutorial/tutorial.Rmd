@@ -255,50 +255,11 @@ The *level* parameter controls which taxa are retained:
 When taxa are kept from only one input, missing rows in the other matrix are filled with `?`.
 
 ```{r}
-# Create a synthetic example with two matrices containing some shared taxa
-# Load the morphological matrix
-mat_full <- TreeTools::ReadCharacters("../testdata/015_MORPH_data.nexus")
-
-# Create matrix 1: first 10 taxa
-mat1 <- mat_full[1:10, ]
-
-# Create matrix 2: last 12 taxa (with 2 shared taxa with mat1)
-mat2 <- mat_full[9:18, ]
-
-cat("Matrix 1 taxa:", rownames(mat1), "\n")
-cat("Matrix 2 taxa:", rownames(mat2), "\n")
-cat("Shared taxa:", intersect(rownames(mat1), rownames(mat2)), "\n\n")
-
-# Example 1: Concatenated output with strictly shared taxa
-filterSharedTaxa(input1 = mat1, 
-                 input2 = mat2,
-                 output_path="../testdata/shared_taxa",
-                 output_concatenate=TRUE,
-                 level="strictly_shared")
-```
-
-```{r}
-# Example 2: Concatenated output with shared taxa and taxa unique to input1
-filterSharedTaxa(input1 = mat1,
-                 input2 = mat2,
-                 output_path="../testdata/shared_unique1_taxa",
-                 output_concatenate=TRUE,
-                 level="shared+unique1")
-```
-
-```{r}
-# Example 3: Separated output with shared taxa and taxa unique to input2
-filterSharedTaxa(input1 = mat1, 
-                 input2 = mat2,
-                 output_path="../testdata/shared_unique2_taxa_sep",
-                 output_concatenate=FALSE,
-                 level="shared+unique2")
-```
-
-```{r}
-# Example 4: Concatenated TNT output with protein data
-filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt", input1_format="tnt",
-                 input2="../testdata/013_MOL_data.tnt", input2_format="tnt",
+# Example: Concatenated TNT output with protein data
+filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt",
+                 input1_format="tnt",
+                 input2="../testdata/013_MOL_data.tnt", 
+                 input2_format="tnt",
                  output_path="../testdata/013_TE_data2.tnt",
                  output_concatenate=TRUE,
                  level="strictly_shared")
