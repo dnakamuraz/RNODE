@@ -101,97 +101,101 @@ filterSharedTaxa <- function(input1, input1_format,
   # Helper function to read TNT file manually preserving exact format
   read_tnt_manual <- function(tnt_file) {
     lines <- readLines(tnt_file)
-    
+
     # Remove preamble lines (like "nstates prot;")
     xread_idx <- which(grepl("^xread", lines, ignore.case = TRUE))[1]
+    if (is.na(xread_idx)) {
+      stop("Could not find 'xread' block in TNT file: ", tnt_file)
+    }
     lines <- lines[xread_idx:length(lines)]
-    
+
     # Parse header: line 1 is xread, line 2 is nchars ntaxa
-    header_parts <- strsplit(lines[2], "\\s+")[[1]]
+    header_parts <- strsplit(trimws(lines[2]), "\\s+")[[1]]
     nchars <- as.numeric(header_parts[1])
     ntaxa <- as.numeric(header_parts[2])
-    
-    # Find block markers
-    block_starts <- which(grepl("^&\\s*\\[", lines))
-    
-    # If no blocks found, treat whole file as one block
-    if (length(block_starts) == 0) {
-      block_starts <- 3  # Start after xread and header
-    } else {
-      block_starts <- block_starts + 1  # Data starts after marker
+    if (is.na(nchars) || is.na(ntaxa)) {
+      stop("Could not parse TNT dimensions in file: ", tnt_file)
     }
-    
-    # Extract sequence lines
-    seq_lines <- c()
-    current_line <- 3  # Skip xread and header
-    for (i in 1:ntaxa) {
-      # Find line with taxon name (contains tab or space followed by data)
-      while (current_line <= length(lines) && (lines[current_line] == "" || grepl("^&\\s*\\[", lines[current_line]))) {
-        current_line <- current_line + 1
+
+    # Keep only taxon sequence lines. TNT block markers such as "& [num]"
+    # and the trailing command section are not part of the matrix.
+    data_lines <- trimws(lines[-c(1, 2)])
+    data_lines <- data_lines[nzchar(data_lines)]
+    data_lines <- data_lines[!grepl("^&\\s*\\[", data_lines)]
+    end_idx <- which(data_lines == ";")[1]
+    if (!is.na(end_idx)) {
+      data_lines <- data_lines[seq_len(end_idx - 1)]
+    }
+
+    if (length(data_lines) < ntaxa) {
+      stop("Expected ", ntaxa, " taxa, but found ", length(data_lines),
+           " sequence lines in TNT file: ", tnt_file)
+    }
+    seq_lines <- data_lines[seq_len(ntaxa)]
+
+    seq_parts <- regmatches(
+      seq_lines,
+      regexec("^([^\\s]+)\\s+(.+)$", seq_lines, perl = TRUE)
+    )
+    parsed <- vapply(seq_parts, length, integer(1)) == 3
+    if (!all(parsed)) {
+      stop("Could not parse taxon and sequence on line(s): ",
+           paste(which(!parsed), collapse = ", "))
+    }
+
+    taxa_names <- vapply(seq_parts, `[`, character(1), 2)
+    sequences <- vapply(seq_parts, `[`, character(1), 3)
+    sequences <- gsub("\\s+", "", sequences, perl = TRUE)
+
+    # Fast path for simple aligned sequences: protein/DNA/numeric matrices
+    # without TNT polymorphism tokens.
+    if (!any(grepl("[\\[\\{\\(]", sequences, perl = TRUE))) {
+      seq_widths <- nchar(sequences, type = "chars")
+      parsed_nchars <- max(seq_widths)
+      if (!all(seq_widths == parsed_nchars)) {
+        split_sequences <- strsplit(sequences, "", fixed = TRUE)
+        split_sequences <- lapply(split_sequences, function(x) {
+          if (length(x) < parsed_nchars) c(x, rep("?", parsed_nchars - length(x))) else x
+        })
+        mat <- matrix(unlist(split_sequences, use.names = FALSE),
+                      nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE)
+        rownames(mat) <- taxa_names
+        warning("TNT sequences have unequal lengths; shorter sequences were padded with '?'.")
+        return(mat)
       }
-      
-      if (current_line <= length(lines)) {
-        seq_lines <- c(seq_lines, lines[current_line])
-        current_line <- current_line + 1
+      if (parsed_nchars != nchars) {
+        warning("TNT header declares ", nchars, " characters, but parsed ",
+                parsed_nchars, " characters in file: ", tnt_file)
       }
+
+      mat <- matrix(
+        unlist(strsplit(sequences, "", fixed = TRUE), use.names = FALSE),
+        nrow = ntaxa,
+        ncol = parsed_nchars,
+        byrow = TRUE
+      )
+      rownames(mat) <- taxa_names
+      return(mat)
     }
-    
-    # Parse sequences
-    taxa_names <- c()
-    sequences <- c()
-    
-    for (seq_line in seq_lines) {
-      # Split on first tab or multiple spaces
-      parts <- strsplit(seq_line, "\\t")[[1]]
-      if (length(parts) == 2) {
-        taxa_names <- c(taxa_names, trimws(parts[1]))
-        sequences <- c(sequences, parts[2])
-      } else {
-        parts <- strsplit(trimws(seq_line), "\\s+", perl = TRUE)[[1]]
-        if (length(parts) >= 2) {
-          taxa_names <- c(taxa_names, parts[1])
-          sequences <- c(sequences, paste(parts[-1], collapse = ""))
-        }
-      }
+
+    # Slower, but still vectorized, path for polymorphic/inapplicable tokens.
+    token_pattern <- "\\[[^]]+\\]|\\{[^}]+\\}|\\([^)]*\\)|."
+    mat_list <- regmatches(sequences, gregexpr(token_pattern, sequences, perl = TRUE))
+    token_counts <- lengths(mat_list)
+    parsed_nchars <- max(token_counts)
+    if (!all(token_counts == parsed_nchars)) {
+      mat_list <- lapply(mat_list, function(x) {
+        if (length(x) < parsed_nchars) c(x, rep("?", parsed_nchars - length(x))) else x
+      })
+      warning("TNT sequences have unequal token counts; shorter sequences were padded with '?'.")
     }
-    
-    # Convert sequences to character matrix
-    # Split each sequence into individual characters/codes
-    mat_list <- list()
-    for (i in 1:length(sequences)) {
-      # Parse sequence preserving polymorphic notation like [0 1]
-      seq <- sequences[i]
-      chars <- c()
-      j <- 1
-      while (j <= nchar(seq)) {
-        if (substr(seq, j, j) == "[") {
-          # Find closing bracket
-          close_bracket <- gregexpr("\\]", seq)[[1]][1]
-          if (close_bracket > j) {
-            chars <- c(chars, substr(seq, j, close_bracket))
-            j <- close_bracket + 1
-          } else {
-            j <- j + 1
-          }
-        } else if (substr(seq, j, j) %in% c(" ", "\t", "\n", "\r")) {
-          j <- j + 1
-        } else {
-          chars <- c(chars, substr(seq, j, j))
-          j <- j + 1
-        }
-      }
-      mat_list[[i]] <- chars
+    if (parsed_nchars != nchars) {
+      warning("TNT header declares ", nchars, " characters, but parsed ",
+              parsed_nchars, " characters in file: ", tnt_file)
     }
-    
-    # Convert to matrix
-    # Pad shorter sequences with NA
-    max_len <- max(sapply(mat_list, length))
-    mat <- matrix("", nrow = length(taxa_names), ncol = max_len)
-    for (i in 1:length(taxa_names)) {
-      chars <- mat_list[[i]]
-      mat[i, 1:length(chars)] <- chars
-    }
-    
+
+    mat <- matrix(unlist(mat_list, use.names = FALSE),
+                  nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE)
     rownames(mat) <- taxa_names
     return(mat)
   }
@@ -219,6 +223,30 @@ filterSharedTaxa <- function(input1, input1_format,
     present_taxa <- intersect(taxa, rownames(mat))
     aligned[present_taxa, ] <- mat[present_taxa, , drop = FALSE]
     aligned
+  }
+
+  # Helper function to catch invalid output directories before writing
+  validate_output_files <- function(filenames) {
+    output_dirs <- unique(dirname(filenames))
+    output_dirs <- output_dirs[output_dirs != "."]
+
+    missing_dirs <- output_dirs[!dir.exists(output_dirs)]
+    if (length(missing_dirs) > 0) {
+      msg <- paste0("Output directory does not exist: ",
+                    paste(missing_dirs, collapse = ", "))
+      if (any(grepl("^/", filenames))) {
+        msg <- paste0(msg,
+                      "\nPaths starting with '/' are absolute paths from the filesystem root. ",
+                      "Use 'tnt/056_', './tnt/056_', or the full project path if you mean a local folder.")
+      }
+      stop(msg, call. = FALSE)
+    }
+
+    unwritable_dirs <- output_dirs[file.access(output_dirs, 2) != 0]
+    if (length(unwritable_dirs) > 0) {
+      stop("Output directory is not writable: ",
+           paste(unwritable_dirs, collapse = ", "), call. = FALSE)
+    }
   }
 
   # Helper function to write TNT format
@@ -467,6 +495,7 @@ filterSharedTaxa <- function(input1, input1_format,
       } else {
         output_name <- paste0(output_path, "_SHARED.nexus")
       }
+      validate_output_files(output_name)
 
       # Determine NEXUS data type (use protein if either input is protein, DNA if either is DNA, else standard)
       nexus_data_format <- "standard"
@@ -496,6 +525,7 @@ filterSharedTaxa <- function(input1, input1_format,
         base_path <- sub("\\.tnt$", "", output_path, ignore.case = TRUE)
         output_name1 <- paste0(base_path, "_SHARED_1.tnt")
         output_name2 <- paste0(base_path, "_SHARED_2.tnt")
+        validate_output_files(c(output_name1, output_name2))
         
         is_protein1 <- (format1 == "protein")
         is_protein2 <- (format2 == "protein")
@@ -505,6 +535,7 @@ filterSharedTaxa <- function(input1, input1_format,
       } else {
         output_name1 <- paste0(output_path, "_SHARED_1.nexus")
         output_name2 <- paste0(output_path, "_SHARED_2.nexus")
+        validate_output_files(c(output_name1, output_name2))
 
         write.nexus.data(mat1_filtered, file = output_name1, format = format1, interleaved = F)
         temp1 <- gsub("INTERLEAVE=NO", "", readLines(output_name1))
