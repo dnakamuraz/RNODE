@@ -4,21 +4,31 @@
 \alias{filterInvariants}
 \title{filterInvariants}
 \usage{
-filterInvariants(input, input_format, output_index)
+filterInvariants(
+  input,
+  input_format = NULL,
+  output_format = NULL,
+  output_index = NULL
+)
 }
 \arguments{
 \item{input}{Input file (molecular or morphological matrix loaded locally or already loaded as a matrix object in R).}
 
-\item{input_format}{To load from a local file: 'nexus' or 'tnt'.}
+\item{input_format}{To load from a local file: 'nexus', 'tnt', or NULL for auto-detect. Default is NULL.}
 
-\item{output_index}{Output index (e.g. if the user specify it as "Desktop/Index", the output files will be "Desktop/Index_onlyVARIANTS.nexus")}
+\item{output_format}{To write a local file: 'tnt', 'nexus', or NULL (default; only returns as an R object).}
+
+\item{output_index}{Output index (e.g. if the user specify it as "Desktop/Index", the output files will be "Desktop/Index_onlyVARIANTS.nexus"). Required if output_format is not NULL.}
 }
 \description{
 Delete invariant characters in a morphological matrix. We follow the definition of invariant site from IQ-Tree: (1) constant sites containing only a single character state in all sequences, (2) partially constant sites (N and/or -), and (3) ambiguously constant sites (e.g. C, Y and -).
 }
 \examples{
-# Example
-filterInvariants(input="../testdata/015_MORPH_data.nexus", output_index="../testdata/015_MORPH_data")
+# Example returning only R object:
+mat_filtered <- filterInvariants(input = "../testdata/015_MORPH_data.nexus")
+
+# Example writing locally as TNT:
+filterInvariants(input = "../testdata/015_MORPH_data.nexus", output_format = "tnt", output_index = "../testdata/015_MORPH_data")
 
 }
 \author{
