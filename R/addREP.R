@@ -1,5 +1,5 @@
-#' @title rep
-#' @name rep
+#' @title addREP
+#' @name addREP
 #' @description Given one alignment and one tree with Goodman-Bremer (GB) support values, compute the ratio of explanatory power (REP) using equally weighted parsimony.
 #' @author Daniel YM Nakamura
 #' @param data A cladistic matrix.
@@ -11,7 +11,7 @@
 #' @references Grant, T., & Kluge, A. G. (2007). Ratio of explanatory power (REP): a new measure of group support. Molecular Phylogenetics and Evolution, 44(1), 483-487.
 #' @references Grant, T., & Kluge, A. G. (2010). REP provides meaningful measurement of support across datasets. Molecular Phylogenetics and Evolution, 55(1), 340-342.
 #' @export
-rep = function(data,
+addREP = function(data,
                tree){
 
 }

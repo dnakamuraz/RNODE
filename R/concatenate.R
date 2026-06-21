@@ -54,8 +54,12 @@ concatenate <- function(input1,
 
   # Detect data type from a TNT file
   detect_type_from_tnt <- function(tnt_file) {
-    lines <- tolower(readLines(tnt_file, n = 10))
-    if (any(grepl("nstates\\s+(prot|32)", lines))) return("protein")
+    lines <- readLines(tnt_file)
+    lines_lc <- tolower(lines)
+    # Protein: declared via nstates preamble
+    if (any(grepl("nstates\\s+(prot|32)", lines_lc))) return("protein")
+    # DNA: declared via block header inside the xread body
+    if (any(grepl("^&\\s*\\[dna\\]", lines_lc)))      return("dna")
     "standard"
   }
 

@@ -85,16 +85,12 @@ filterSharedTaxa <- function(input1, input1_format,
 
   # Helper function to detect data type from TNT file
   detect_format_from_tnt <- function(tnt_file) {
-    lines <- tolower(readLines(tnt_file, n = 10))  # Read first 10 lines
-    # Look for protein state declarations
-    if (any(grepl("nstates\\s+(prot|32)", lines))) {
-      return("protein")
-    }
-    # Check if lines contain protein-specific amino acids in the data
-    if (any(grepl("xread", lines))) {
-      # If xread found, it's TNT format (standard is default for TNT)
-      return("standard")
-    }
+    lines    <- readLines(tnt_file)
+    lines_lc <- tolower(lines)
+    # Protein: declared via nstates preamble
+    if (any(grepl("nstates\\s+(prot|32)", lines_lc))) return("protein")
+    # DNA: declared via block header inside the xread body
+    if (any(grepl("^&\\s*\\[dna\\]", lines_lc)))      return("dna")
     return("standard")
   }
 
