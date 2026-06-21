@@ -39,6 +39,7 @@ The following functions are available in **RNODE**:
 | *mapBranchLength*         | Tree handling    | Given one tree without branch lengths (e.g. strict consensus) and another tree(s) with branch lengths (e.g. MPTs), map the branch lengths from the latter to the former. |
 | *mapSupport*              | Tree handling    | Given one tree with support values (e.g. majority consensus of bootstrap trees) and another tree without support values (e.g. strict consensus of optimal trees), map the support values from the former to the latter. |
 | *findEqualLength*         | Matrix handling  | Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG. |
+| *concatenate*             | Matrix handling  | Given two molecular or morphological matrices, concatenate them by columns. Taxa present in only one matrix are filled with missing data ('?'). |
 | *filterInvariants*        | Matrix handling  | Given a matrix, delete characters containing only invariants. |
 | *filterMissing*           | Matrix handling  | Given a matrix, delete taxa and/or characters containing only missing data (?). |
 | *filterSharedTaxa*        | Matrix handling  | Given two molecular or morphological matrices, filter taxa using shared taxa only, shared taxa plus taxa unique to input 1, or shared taxa plus taxa unique to input 2. |
@@ -257,6 +258,22 @@ filterSharedTaxa(input1="../testdata/013_MORPH_data.tnt", input1_format="tnt",
 ```
 
 If one of the input matrices contains protein data and the output is TNT, *filterSharedTaxa* writes the TNT header `nstates 32`.
+
+The function *concatenate* merges two phylogenetic matrices column-wise. Input can be NEXUS or TNT files (format is auto-detected from the file extension) or matrices already loaded in R. Taxa present in only one of the inputs are filled with `?` in the output. For instance, using the data set from Whitcher et al. (2025), we concatenate a morphological matrix (77 characters, 11 taxa) and a molecular matrix (45,165 characters, 28 taxa) into a total-evidence matrix (45,242 characters, 28 taxa):
+
+```
+concatenate(input1       = "../testdata/059_MORPH_data.tnt",
+            input2       = "../testdata/059_MOL_data.tnt",
+            output_file  = "../testdata/059_TE_data.tnt",
+            output_format = "tnt")
+```
+
+The output file `059_TE_data.tnt` contains both character blocks (`& [num]` for morphology, `& [num]` for molecular) separated by TNT block headers. The 17 taxa absent from the morphological matrix are automatically padded with `?` for the first 77 characters. The result can also be captured as an R object without writing a file:
+
+```
+mat <- concatenate(input1 = "../testdata/059_MORPH_data.tnt",
+                   input2 = "../testdata/059_MOL_data.tnt")
+```
 
 The function *splitOrdFromUnord* splits a morphological matrix into partitions of ordered and unordered characters based on a list of ordered characters.
 
