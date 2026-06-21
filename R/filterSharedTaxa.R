@@ -70,12 +70,12 @@ filterSharedTaxa <- function(input1, input1_format,
   detect_format_from_nexus <- function(nexus_file) {
     lines <- tolower(readLines(nexus_file))
     # Look for format declaration
-    format_line <- grep("format\\s*=", lines, value = TRUE)
+    format_line <- grep("\\bformat\\b", lines, value = TRUE)
     if (length(format_line) > 0) {
       if (grepl("datatype\\s*=\\s*protein", format_line[1]) || grepl("protein", format_line[1])) {
         return("protein")
       } else if (grepl("datatype\\s*=\\s*dna", format_line[1]) || grepl("dna", format_line[1])) {
-        return("DNA")
+        return("dna")
       } else if (grepl("standard", format_line[1])) {
         return("standard")
       }
@@ -379,7 +379,7 @@ filterSharedTaxa <- function(input1, input1_format,
       # Handle DNAbin objects with unequal sequence lengths
       if (inherits(mat1, "DNAbin")) {
         mat1 <- dnabin_to_matrix(mat1)
-        format1 <- "DNA"
+        format1 <- "dna"
       } else {
         mat1 <- as.matrix(mat1)
         # Try to detect if it's protein
@@ -411,7 +411,7 @@ filterSharedTaxa <- function(input1, input1_format,
       # Handle DNAbin objects with unequal sequence lengths
       if (inherits(mat2, "DNAbin")) {
         mat2 <- dnabin_to_matrix(mat2)
-        format2 <- "DNA"
+        format2 <- "dna"
       } else {
         mat2 <- as.matrix(mat2)
         # Try to detect if it's protein
@@ -501,8 +501,8 @@ filterSharedTaxa <- function(input1, input1_format,
       nexus_data_format <- "standard"
       if (format1 == "protein" || format2 == "protein") {
         nexus_data_format <- "protein"
-      } else if (format1 == "DNA" || format2 == "DNA") {
-        nexus_data_format <- "DNA"
+      } else if (format1 == "dna" || format2 == "dna") {
+        nexus_data_format <- "dna"
       }
 
       if (is_tnt_output) {
@@ -512,8 +512,9 @@ filterSharedTaxa <- function(input1, input1_format,
         cat("Format: TNT (blocks: ", format1, " +", format2, ")\n")
       } else {
         # Write NEXUS format
-        write.nexus.data(result_mat, file = output_name, format = nexus_data_format, interleaved = F)
+        ape::write.nexus.data(result_mat, file = output_name, format = nexus_data_format, interleaved = F)
         temp <- gsub("INTERLEAVE=NO", "", readLines(output_name))
+        temp <- gsub("write.nexus.data.R", "RNODE", temp)
         writeLines(temp, output_name)
         cat("Concatenated matrix written to:", output_name, "\n")
         cat("Format:", nexus_data_format, "\n")
@@ -537,12 +538,14 @@ filterSharedTaxa <- function(input1, input1_format,
         output_name2 <- paste0(output_path, "_SHARED_2.nexus")
         validate_output_files(c(output_name1, output_name2))
 
-        write.nexus.data(mat1_filtered, file = output_name1, format = format1, interleaved = F)
+        ape::write.nexus.data(mat1_filtered, file = output_name1, format = format1, interleaved = F)
         temp1 <- gsub("INTERLEAVE=NO", "", readLines(output_name1))
+        temp1 <- gsub("write.nexus.data.R", "RNODE", temp1)
         writeLines(temp1, output_name1)
 
-        write.nexus.data(mat2_filtered, file = output_name2, format = format2, interleaved = F)
+        ape::write.nexus.data(mat2_filtered, file = output_name2, format = format2, interleaved = F)
         temp2 <- gsub("INTERLEAVE=NO", "", readLines(output_name2))
+        temp2 <- gsub("write.nexus.data.R", "RNODE", temp2)
         writeLines(temp2, output_name2)
       }
 

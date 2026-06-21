@@ -22,7 +22,7 @@ library(ggplot2)
 library(RNODE)
 ```
 
-# 1. Example 1: Comparison of support values between trees
+# 1. Comparison of trees
 
 ## 1.1 Identify shared and unique clades
 
