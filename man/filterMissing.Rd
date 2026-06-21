@@ -4,7 +4,13 @@
 \alias{filterMissing}
 \title{filterMissing}
 \usage{
-filterMissing(input, input_format, output_path, missing = "row")
+filterMissing(
+  input,
+  input_format = NULL,
+  output_path,
+  output_format = "nexus",
+  missing = "row"
+)
 }
 \arguments{
 \item{input}{Input file (morphological matrix in Nexus format).}
@@ -12,6 +18,8 @@ filterMissing(input, input_format, output_path, missing = "row")
 \item{input_format}{To load from a local file: 'nexus' or 'tnt'.}
 
 \item{output_path}{Output path (e.g. if the user specify it as "Desktop/Index", the output files will be "Desktop/Index_ORDERED.nexus" and "Desktop/Index_UNORDERED.nexus")}
+
+\item{output_format}{Format to write the output matrix. Options: "nexus" (default) or "tnt".}
 
 \item{missing}{Parameter specifying if rows and/or columns in which all cells are missing data (?) should be removed. Options: "row" (default i.e. terminals), "column" (i.e. characters, transformation series), "both".}
 }

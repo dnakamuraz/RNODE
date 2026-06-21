@@ -106,6 +106,8 @@ splitNoStates <- function(input,
         # Write a permanent file
         writeLines(temp, outfile)
       } else if (input_format == "tnt") {
+        # TNT uses [01] for ambiguities; convert any (01)-style tokens before writing
+        submat[] <- gsub("\\(([^)]+)\\)", "[\\1]", submat, perl = TRUE)
         TreeTools::WriteTntCharacters(submat, file = outfile)
       }
 

@@ -249,6 +249,12 @@ filterSharedTaxa <- function(input1, input1_format,
     }
   }
 
+  # Helper function to convert parenthesis-coded ambiguities to TNT bracket notation.
+  # TNT uses [01] for polymorphisms; (01) is NEXUS/Hennig86 notation.
+  tnt_fix_ambiguity <- function(sequence) {
+    gsub("\\(([^)]+)\\)", "[\\1]", sequence, perl = TRUE)
+  }
+
   # Helper function to write TNT format
   write_tnt_lines <- function(lines, filename) {
     if (length(lines) > 0 && lines[1] == "nstates 32") {
@@ -260,19 +266,21 @@ filterSharedTaxa <- function(input1, input1_format,
   }
 
   # Helper function to write TNT format
-  write_tnt_format <- function(mat, filename, is_protein = FALSE) {
+  write_tnt_format <- function(mat, filename, format = "standard") {
     ntaxa <- nrow(mat)
     nchars <- ncol(mat)
     
     # Create TNT output lines (header is nchars ntaxa, NOT ntaxa nchars)
     lines <- c("xread", paste(nchars, ntaxa))
-    if (is_protein) {
+    if (format == "protein") {
       lines <- c("nstates 32", lines)
     }
     
     # Add protein block header if needed
-    if (is_protein) {
+    if (format == "protein") {
       lines <- c(lines, "", "& [prot]")
+    } else if (format == "dna") {
+      lines <- c(lines, "", "& [dna]")
     } else {
       lines <- c(lines, "", "& [num]")
     }
@@ -280,7 +288,7 @@ filterSharedTaxa <- function(input1, input1_format,
     # Add sequences
     for (i in 1:ntaxa) {
       taxon <- rownames(mat)[i]
-      sequence <- paste(mat[i, ], collapse = "")
+      sequence <- tnt_fix_ambiguity(paste(mat[i, ], collapse = ""))
       lines <- c(lines, paste0(taxon, "\t", sequence))
     }
     
@@ -305,8 +313,8 @@ filterSharedTaxa <- function(input1, input1_format,
     }
     
     # Determine block headers
-    block1_header <- if (format1 == "protein") "& [prot]" else "& [num]"
-    block2_header <- if (format2 == "protein") "& [prot]" else "& [num]"
+    block1_header <- if (format1 == "protein") "& [prot]" else if (format1 == "dna") "& [dna]" else "& [num]"
+    block2_header <- if (format2 == "protein") "& [prot]" else if (format2 == "dna") "& [dna]" else "& [num]"
     
     # Reorder blocks: protein should come first, then standard
     if (format1 == "protein" && format2 != "protein") {
@@ -314,13 +322,13 @@ filterSharedTaxa <- function(input1, input1_format,
       lines <- c(lines, "", block1_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat1)[i]
-        sequence <- paste(mat1[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat1[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
       lines <- c(lines, "", block2_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat2)[i]
-        sequence <- paste(mat2[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat2[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
     } else if (format1 != "protein" && format2 == "protein") {
@@ -328,13 +336,13 @@ filterSharedTaxa <- function(input1, input1_format,
       lines <- c(lines, "", block2_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat2)[i]
-        sequence <- paste(mat2[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat2[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
       lines <- c(lines, "", block1_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat1)[i]
-        sequence <- paste(mat1[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat1[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
     } else {
@@ -342,13 +350,13 @@ filterSharedTaxa <- function(input1, input1_format,
       lines <- c(lines, "", block1_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat1)[i]
-        sequence <- paste(mat1[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat1[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
       lines <- c(lines, "", block2_header)
       for (i in 1:ntaxa) {
         taxon <- rownames(mat2)[i]
-        sequence <- paste(mat2[i, ], collapse = "")
+        sequence <- tnt_fix_ambiguity(paste(mat2[i, ], collapse = ""))
         lines <- c(lines, paste0(taxon, "\t", sequence))
       }
     }
@@ -528,11 +536,8 @@ filterSharedTaxa <- function(input1, input1_format,
         output_name2 <- paste0(base_path, "_SHARED_2.tnt")
         validate_output_files(c(output_name1, output_name2))
         
-        is_protein1 <- (format1 == "protein")
-        is_protein2 <- (format2 == "protein")
-        
-        write_tnt_format(mat1_filtered, output_name1, is_protein = is_protein1)
-        write_tnt_format(mat2_filtered, output_name2, is_protein = is_protein2)
+        write_tnt_format(mat1_filtered, output_name1, format = format1)
+        write_tnt_format(mat2_filtered, output_name2, format = format2)
       } else {
         output_name1 <- paste0(output_path, "_SHARED_1.nexus")
         output_name2 <- paste0(output_path, "_SHARED_2.nexus")
