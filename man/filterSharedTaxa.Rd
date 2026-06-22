@@ -6,9 +6,9 @@
 \usage{
 filterSharedTaxa(
   input1,
-  input1_format,
+  input1_format = NULL,
   input2,
-  input2_format,
+  input2_format = NULL,
   output_path = NULL,
   output_format = NULL,
   output_concatenate = TRUE,
@@ -19,11 +19,11 @@ filterSharedTaxa(
 \arguments{
 \item{input1}{First input file (molecular or morphological matrix in nexus, fasta, or tnt format) or already loaded as a matrix object in R.}
 
-\item{input1_format}{To load from a local file: 'nexus', 'fasta', or 'tnt'.}
+\item{input1_format}{To load from a local file: 'nexus', 'fasta', or 'tnt'. Defaults to NULL (auto-detects).}
 
 \item{input2}{Second input file (molecular or morphological matrix in nexus, fasta, or tnt format) or already loaded as a matrix object in R.}
 
-\item{input2_format}{To load from a local file: 'nexus', 'fasta', or 'tnt'.}
+\item{input2_format}{To load from a local file: 'nexus', 'fasta', or 'tnt'. Defaults to NULL (auto-detects).}
 
 \item{output_path}{Output path. For NEXUS output, "Desktop/Index" will output "Desktop/Index_SHARED.nexus" (concatenated) or "Desktop/Index_SHARED_1.nexus" and "Desktop/Index_SHARED_2.nexus" (separated). For TNT output, "Desktop/Index" will output "Desktop/Index.tnt" (concatenated) or "Desktop/Index_SHARED_1.tnt" and "Desktop/Index_SHARED_2.tnt" (separated). If NULL, returns matrices as a list without writing files.}
 
@@ -40,22 +40,26 @@ Filter two molecular or morphological matrices by shared and unique taxa (rows).
 }
 \examples{
 # Example with concatenated NEXUS output
-filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
-                 input2="testdata/file2.nexus", input2_format="nexus",
-                 output_path="testdata/shared", output_concatenate=TRUE)
+filterSharedTaxa(
+  input1 = "testdata/file1.nexus", input1_format = "nexus",
+  input2 = "testdata/file2.nexus", input2_format = "nexus",
+  output_path = "testdata/shared", output_concatenate = TRUE
+)
 
 # Example with concatenated TNT output (protein data)
-filterSharedTaxa(input1="testdata/013_MORPH_data.tnt", input1_format="tnt",
-                 input2="testdata/013_MOL_data.tnt", input2_format="tnt",
-                 output_path="testdata/013_TE_data", output_format="tnt",
-                 output_concatenate=TRUE,
-                 level="strictly_shared")
+filterSharedTaxa(
+  input1 = "testdata/013_MORPH_data.tnt", input1_format = "tnt",
+  input2 = "testdata/013_MOL_data.tnt", input2_format = "tnt",
+  output_path = "testdata/013_TE_data", output_format = "tnt",
+  output_concatenate = TRUE, level = "strictly_shared"
+)
 
 # Example with separated output
-filterSharedTaxa(input1="testdata/file1.nexus", input1_format="nexus",
-                 input2="testdata/file2.nexus", input2_format="nexus",
-                 output_path="testdata/shared", output_concatenate=FALSE)
-
+filterSharedTaxa(
+  input1 = "testdata/file1.nexus", input1_format = "nexus",
+  input2 = "testdata/file2.nexus", input2_format = "nexus",
+  output_path = "testdata/shared", output_concatenate = FALSE
+)
 }
 \author{
 Daniel YM Nakamura
