@@ -37,14 +37,18 @@ Concatenate two phylogenetic matrices (morphological or molecular) by columns.
 }
 \examples{
 # Concatenate two TNT files
-concatenate(input1 = "testdata/059_MORPH_data.tnt",
-            input2 = "testdata/059_MOL_data.tnt",
-            output_file = "testdata/059_TE_data.tnt",
-            output_format = "tnt")
+concatenate(
+  input1 = "testdata/059_MORPH_data.tnt",
+  input2 = "testdata/059_MOL_data.tnt",
+  output_file = "testdata/059_TE_data.tnt",
+  output_format = "tnt"
+)
 
 # Return as R object without writing
-mat <- concatenate(input1 = "testdata/059_MORPH_data.tnt",
-                   input2 = "testdata/059_MOL_data.tnt")
+mat <- concatenate(
+  input1 = "testdata/059_MORPH_data.tnt",
+  input2 = "testdata/059_MOL_data.tnt"
+)
 
 }
 \author{

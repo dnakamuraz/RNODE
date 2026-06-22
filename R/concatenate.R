@@ -14,23 +14,26 @@
 #' @return Invisibly returns the concatenated matrix.
 #' @examples
 #' # Concatenate two TNT files
-#' concatenate(input1 = "testdata/059_MORPH_data.tnt",
-#'             input2 = "testdata/059_MOL_data.tnt",
-#'             output_file = "testdata/059_TE_data.tnt",
-#'             output_format = "tnt")
+#' concatenate(
+#'   input1 = "testdata/059_MORPH_data.tnt",
+#'   input2 = "testdata/059_MOL_data.tnt",
+#'   output_file = "testdata/059_TE_data.tnt",
+#'   output_format = "tnt"
+#' )
 #'
 #' # Return as R object without writing
-#' mat <- concatenate(input1 = "testdata/059_MORPH_data.tnt",
-#'                    input2 = "testdata/059_MOL_data.tnt")
+#' mat <- concatenate(
+#'   input1 = "testdata/059_MORPH_data.tnt",
+#'   input2 = "testdata/059_MOL_data.tnt"
+#' )
 #'
 #' @export
 concatenate <- function(input1,
                         input2,
                         input1_format = NULL,
                         input2_format = NULL,
-                        output_file   = NULL,
+                        output_file = NULL,
                         output_format = NULL) {
-
   # ---------------------------------------------------------------------------
   # Internal helpers
   # ---------------------------------------------------------------------------
@@ -43,11 +46,17 @@ concatenate <- function(input1,
   # Detect data type (standard / dna / protein) from a NEXUS file
   detect_type_from_nexus <- function(nexus_file) {
     lines <- tolower(readLines(nexus_file))
-    fmt   <- grep("\\bformat\\b", lines, value = TRUE)
+    fmt <- grep("\\bformat\\b", lines, value = TRUE)
     if (length(fmt) > 0) {
-      if (grepl("datatype\\s*=\\s*protein|protein", fmt[1])) return("protein")
-      if (grepl("datatype\\s*=\\s*dna|dna",         fmt[1])) return("dna")
-      if (grepl("standard",                          fmt[1])) return("standard")
+      if (grepl("datatype\\s*=\\s*protein|\\bprotein\\b", fmt[1])) {
+        return("protein")
+      }
+      if (grepl("datatype\\s*=\\s*dna|\\bdna\\b", fmt[1])) {
+        return("dna")
+      }
+      if (grepl("standard", fmt[1])) {
+        return("standard")
+      }
     }
     "standard"
   }
@@ -56,10 +65,20 @@ concatenate <- function(input1,
   detect_type_from_tnt <- function(tnt_file) {
     lines <- readLines(tnt_file)
     lines_lc <- tolower(lines)
-    # Protein: declared via nstates preamble
-    if (any(grepl("nstates\\s+(prot|32)", lines_lc))) return("protein")
-    # DNA: declared via block header inside the xread body
-    if (any(grepl("^&\\s*\\[dna\\]", lines_lc)))      return("dna")
+    # Protein: declared via nstates preamble or block header
+    if (any(grepl("nstates\\s+(prot|32)", lines_lc))) {
+      return("protein")
+    }
+    if (any(grepl("&\\s*\\[prot\\]", lines_lc))) {
+      return("protein")
+    }
+    # DNA: declared via nstates preamble or block header
+    if (any(grepl("nstates\\s+dna", lines_lc))) {
+      return("dna")
+    }
+    if (any(grepl("&\\s*\\[dna\\]", lines_lc))) {
+      return("dna")
+    }
     "standard"
   }
 
@@ -75,7 +94,7 @@ concatenate <- function(input1,
 
     header_parts <- strsplit(trimws(lines[2]), "\\s+")[[1]]
     nchars <- as.numeric(header_parts[1])
-    ntaxa  <- as.numeric(header_parts[2])
+    ntaxa <- as.numeric(header_parts[2])
     if (is.na(nchars) || is.na(ntaxa)) {
       stop("Could not parse TNT dimensions in file: ", tnt_file)
     }
@@ -83,12 +102,14 @@ concatenate <- function(input1,
     data_lines <- trimws(lines[-c(1, 2)])
     data_lines <- data_lines[nzchar(data_lines)]
     data_lines <- data_lines[!grepl("^&\\s*\\[", data_lines)]
-    end_idx    <- which(data_lines == ";")[1]
+    end_idx <- which(data_lines == ";")[1]
     if (!is.na(end_idx)) data_lines <- data_lines[seq_len(end_idx - 1)]
 
     if (length(data_lines) < ntaxa) {
-      stop("Expected ", ntaxa, " taxa but found ", length(data_lines),
-           " sequence lines in: ", tnt_file)
+      stop(
+        "Expected ", ntaxa, " taxa but found ", length(data_lines),
+        " sequence lines in: ", tnt_file
+      )
     }
     seq_lines <- data_lines[seq_len(ntaxa)]
 
@@ -98,17 +119,19 @@ concatenate <- function(input1,
     )
     parsed <- vapply(seq_parts, length, integer(1)) == 3
     if (!all(parsed)) {
-      stop("Could not parse taxon/sequence on line(s): ",
-           paste(which(!parsed), collapse = ", "))
+      stop(
+        "Could not parse taxon/sequence on line(s): ",
+        paste(which(!parsed), collapse = ", ")
+      )
     }
 
     taxa_names <- vapply(seq_parts, `[`, character(1), 2)
-    sequences  <- vapply(seq_parts, `[`, character(1), 3)
-    sequences  <- gsub("\\s+", "", sequences, perl = TRUE)
+    sequences <- vapply(seq_parts, `[`, character(1), 3)
+    sequences <- gsub("\\s+", "", sequences, perl = TRUE)
 
     # Fast path: no polymorphic tokens
     if (!any(grepl("[\\[\\{\\(]", sequences, perl = TRUE))) {
-      seq_widths    <- nchar(sequences, type = "chars")
+      seq_widths <- nchar(sequences, type = "chars")
       parsed_nchars <- max(seq_widths)
       if (!all(seq_widths == parsed_nchars)) {
         split_sequences <- strsplit(sequences, "", fixed = TRUE)
@@ -116,7 +139,8 @@ concatenate <- function(input1,
           if (length(x) < parsed_nchars) c(x, rep("?", parsed_nchars - length(x))) else x
         })
         mat <- matrix(unlist(split_sequences, use.names = FALSE),
-                      nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE)
+          nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE
+        )
         rownames(mat) <- taxa_names
         warning("TNT sequences have unequal lengths; shorter sequences were padded with '?'.")
         return(mat)
@@ -131,8 +155,8 @@ concatenate <- function(input1,
 
     # Slow path: polymorphic / inapplicable tokens
     token_pattern <- "\\[[^]]+\\]|\\{[^}]+\\}|\\([^)]*\\)|."
-    mat_list      <- regmatches(sequences, gregexpr(token_pattern, sequences, perl = TRUE))
-    token_counts  <- lengths(mat_list)
+    mat_list <- regmatches(sequences, gregexpr(token_pattern, sequences, perl = TRUE))
+    token_counts <- lengths(mat_list)
     parsed_nchars <- max(token_counts)
     if (!all(token_counts == parsed_nchars)) {
       mat_list <- lapply(mat_list, function(x) {
@@ -141,7 +165,8 @@ concatenate <- function(input1,
       warning("TNT sequences have unequal token counts; shorter sequences were padded with '?'.")
     }
     mat <- matrix(unlist(mat_list, use.names = FALSE),
-                  nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE)
+      nrow = ntaxa, ncol = parsed_nchars, byrow = TRUE
+    )
     rownames(mat) <- taxa_names
     return(mat)
   }
@@ -163,16 +188,17 @@ concatenate <- function(input1,
 
   # Build and write a single-block TNT file from a matrix
   write_tnt_single <- function(mat, filename, data_type = "standard") {
-    ntaxa  <- nrow(mat)
+    ntaxa <- nrow(mat)
     nchars <- ncol(mat)
 
     lines <- c("xread", paste(nchars, ntaxa))
     if (data_type == "protein") lines <- c("nstates 32", lines)
 
     block_header <- switch(data_type,
-                           protein  = "& [prot]",
-                           dna      = "& [dna]",
-                           "& [num]")
+      protein  = "& [prot]",
+      dna      = "& [dna]",
+      "& [num]"
+    )
     lines <- c(lines, "", block_header)
 
     for (i in seq_len(ntaxa)) {
@@ -185,19 +211,25 @@ concatenate <- function(input1,
 
   # Build and write a two-block TNT file from two matrices (concatenated)
   write_tnt_concat <- function(mat1, mat2, filename, type1 = "standard", type2 = "standard") {
-    ntaxa        <- nrow(mat1)
+    ntaxa <- nrow(mat1)
     total_nchars <- ncol(mat1) + ncol(mat2)
 
     lines <- c("xread", paste(total_nchars, ntaxa))
     if (type1 == "protein" || type2 == "protein") lines <- c("nstates 32", lines)
 
-    header_of <- function(t) switch(t, protein = "& [prot]", dna = "& [dna]", "& [num]")
+    header_of <- function(t) {
+      switch(t,
+        protein = "& [prot]",
+        dna = "& [dna]",
+        "& [num]"
+      )
+    }
 
     # Protein block always comes first in TNT convention
     write_block <- function(m, h) {
       lines <<- c(lines, "", h)
       for (i in seq_len(ntaxa)) {
-        seq   <- tnt_fix_ambiguity(paste(m[i, ], collapse = ""))
+        seq <- tnt_fix_ambiguity(paste(m[i, ], collapse = ""))
         lines <<- c(lines, paste0(rownames(m)[i], "\t", seq))
       }
     }
@@ -230,10 +262,10 @@ concatenate <- function(input1,
 
     if (input1_format == "nexus") {
       type1 <- detect_type_from_nexus(input1)
-      mat1  <- as.matrix(TreeTools::ReadCharacters(input1))
+      mat1 <- as.matrix(TreeTools::ReadCharacters(input1))
     } else {
       type1 <- detect_type_from_tnt(input1)
-      mat1  <- read_tnt_manual(input1)
+      mat1 <- read_tnt_manual(input1)
     }
   }
 
@@ -250,10 +282,10 @@ concatenate <- function(input1,
 
     if (input2_format == "nexus") {
       type2 <- detect_type_from_nexus(input2)
-      mat2  <- as.matrix(TreeTools::ReadCharacters(input2))
+      mat2 <- as.matrix(TreeTools::ReadCharacters(input2))
     } else {
       type2 <- detect_type_from_tnt(input2)
-      mat2  <- read_tnt_manual(input2)
+      mat2 <- read_tnt_manual(input2)
     }
   }
 
@@ -281,8 +313,10 @@ concatenate <- function(input1,
   # Align both matrices to the full taxon set (fill absent rows with '?')
   # ---------------------------------------------------------------------------
   align_to_taxa <- function(mat, taxa) {
-    out <- matrix("?", nrow = length(taxa), ncol = ncol(mat),
-                  dimnames = list(taxa, colnames(mat)))
+    out <- matrix("?",
+      nrow = length(taxa), ncol = ncol(mat),
+      dimnames = list(taxa, colnames(mat))
+    )
     present <- intersect(taxa, rownames(mat))
     out[present, ] <- mat[present, , drop = FALSE]
     out
@@ -298,7 +332,6 @@ concatenate <- function(input1,
   # Write output file (if requested)
   # ---------------------------------------------------------------------------
   if (!is.null(output_file)) {
-
     # Determine output format
     if (is.null(output_format)) {
       output_format <- if (grepl("\\.tnt$", output_file, ignore.case = TRUE)) "tnt" else "nexus"
@@ -319,7 +352,6 @@ concatenate <- function(input1,
       write_tnt_concat(mat1_aligned, mat2_aligned, output_file, type1, type2)
       cat("Concatenated matrix written to:", output_file, "\n")
       cat("Format: TNT (blocks:", type1, "+", type2, ")\n")
-
     } else {
       # Ensure .nexus extension
       if (!grepl("\\.(nexus|nex)$", output_file, ignore.case = TRUE)) {
@@ -332,8 +364,10 @@ concatenate <- function(input1,
       } else {
         "standard"
       }
-      ape::write.nexus.data(result, file = output_file,
-                            format = nexus_type, interleaved = FALSE)
+      ape::write.nexus.data(result,
+        file = output_file,
+        format = nexus_type, interleaved = FALSE
+      )
       tmp <- readLines(output_file)
       tmp <- gsub("INTERLEAVE=NO", "", tmp)
       tmp <- gsub("write.nexus.data.R", "RNODE", tmp)
