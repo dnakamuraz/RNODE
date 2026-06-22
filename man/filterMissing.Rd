@@ -28,7 +28,7 @@ Filter taxa (rows) and/or characters (columns) in a matrix containing only missi
 }
 \examples{
 # Example
-filterMissing (input="testdata/test_filterMissing.nexus", output_path="testdata/test", missing="row")
+filterMissing(input = "testdata/test_filterMissing.nexus", output_path = "testdata/test", missing = "row")
 
 }
 \author{
