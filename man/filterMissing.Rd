@@ -7,7 +7,7 @@
 filterMissing(
   input,
   input_format = NULL,
-  output_path,
+  output,
   output_format = "nexus",
   missing = "row"
 )
@@ -17,7 +17,7 @@ filterMissing(
 
 \item{input_format}{To load from a local file: 'nexus' or 'tnt'.}
 
-\item{output_path}{Output path (e.g. if the user specify it as "Desktop/Index", the output files will be "Desktop/Index_ORDERED.nexus" and "Desktop/Index_UNORDERED.nexus")}
+\item{output}{Output path (e.g. if the user specify it as "Desktop/Index", the output files will be "Desktop/Index_ORDERED.nexus" and "Desktop/Index_UNORDERED.nexus")}
 
 \item{output_format}{Format to write the output matrix. Options: "nexus" (default) or "tnt".}
 
@@ -27,8 +27,10 @@ filterMissing(
 Filter taxa (rows) and/or characters (columns) in a matrix containing only missing data.
 }
 \examples{
+\dontrun{
 # Example
-filterMissing(input = "testdata/test_filterMissing.nexus", output_path = "testdata/test", missing = "row")
+filterMissing(input = "testdata/test_filterMissing.nexus", output = "testdata/test", missing = "row")
+}
 
 }
 \author{

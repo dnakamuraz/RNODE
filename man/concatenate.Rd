@@ -33,7 +33,9 @@ Invisibly returns the concatenated matrix.
 Concatenate two phylogenetic matrices (morphological or molecular) by columns.
   Inputs can be local NEXUS or TNT files, or matrices already loaded in R.
   Taxa present in only one matrix are filled with missing data ('?').
-  The input format is detected automatically when not provided.
+  The input format and data types (morphology, DNA, protein) are detected automatically
+  if not explicitly defined in headers.
+  Also reports and translates ordered (additive) characters safely to output matrix arrays.
 }
 \examples{
 # Concatenate two TNT files
