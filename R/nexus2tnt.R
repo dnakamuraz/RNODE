@@ -56,6 +56,8 @@ nexus2tnt <- function(input_file, output_file) {
           if (length(parts) >= 2) {
             taxon <- parts[1]
             seq_data <- paste(parts[-1], collapse = "")
+            seq_data <- gsub("\\(|\\{", "[", seq_data)
+            seq_data <- gsub("\\)|\\}", "]", seq_data)
             matrix_lines <- c(matrix_lines, paste(taxon, seq_data))
           }
         }
@@ -96,7 +98,11 @@ nexus2tnt <- function(input_file, output_file) {
   }
 
   # Format TNT output
-  tnt_header <- "xread"
+  if (datatype == "PROTEIN") {
+    tnt_header <- c("nstates 32", "xread")
+  } else {
+    tnt_header <- "xread"
+  }
 
   tnt_datatype <- "&[num]"
   if (datatype == "DNA") {
@@ -115,6 +121,8 @@ nexus2tnt <- function(input_file, output_file) {
     tnt_ordered_str <- paste(tnt_ordered, collapse = " ")
     out_lines <- c(out_lines, paste("ccode +", tnt_ordered_str, ";"))
   }
+
+  out_lines <- c(out_lines, "", "proc /;", "comments 0", ";")
 
   writeLines(out_lines, output_file)
   message(paste("Successfully converted to", output_file))

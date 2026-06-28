@@ -56,7 +56,17 @@ tnt2nexus <- function(input_file, output_file) {
       } else if (startsWith(line_lower, "&[num]") || startsWith(line_lower, "& [num]")) {
         datatype <- "STANDARD"
       } else if (line != "") {
-        matrix_lines <- c(matrix_lines, line)
+        # Check if line contains taxon data (starts with alphanumeric or quote)
+        parts <- unlist(strsplit(line, "\\s+"))
+        if (length(parts) >= 2) {
+          taxon <- parts[1]
+          seq_data <- paste(parts[-1], collapse = " ") # Keep spaces if any in TNT
+          seq_data <- gsub("\\[", "(", seq_data)
+          seq_data <- gsub("\\]", ")", seq_data)
+          matrix_lines <- c(matrix_lines, paste(taxon, seq_data))
+        } else {
+          matrix_lines <- c(matrix_lines, line)
+        }
       }
       i <- i + 1
       next
