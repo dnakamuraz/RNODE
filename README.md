@@ -45,6 +45,8 @@ The following functions are available in **RNODE**:
 | *filterSharedTaxa*        | Matrix handling  | Given two molecular or morphological matrices, filter taxa using shared taxa only, shared taxa plus taxa unique to input 1, or shared taxa plus taxa unique to input 2. |
 | *splitNoStates*           | Matrix handling  | Given a morphological matrix, split it based on the number of character-states for MK(v) models. |
 | *splitOrdFromUnord*       | Matrix handling  | Given a morphological matrix and a list of ordered and unordered characters, split the matrix into two matrices. |
+| *nexus2tnt*               | Matrix handling  | Converts a NEXUS matrix into TNT format while preserving header data types and ordered character structures. |
+| *tnt2nexus*               | Matrix handling  | Converts a TNT matrix into NEXUS format while preserving header data types and ordered character structures. |
 
 The following examples are designed for users with little experience. If you have questions, send a message using GitHub issues. 
 
@@ -89,13 +91,13 @@ df = sharedNodes(tree1=a, tree2=b, composition=T,
 ```
 
 <p align="center">
-  <a href="tutorial/example1.1_df.png"><img src="tutorial/example1.1_df.png" alt="df" width="100%"></a>
+  <a href="man/figures/example1.1_df.png"><img src="man/figures/example1.1_df.png" alt="df" width="100%"></a>
 </p>
 
 
 <p align="center">
-  <a href="tutorial/example1.1_simulated1.png"><img src="tutorial/example1.1_simulated1.png" alt="Fig 1" width="45%"></a>
-  <a href="tutorial/example1.1_simulated2.png"><img src="tutorial/example1.1_simulated2.png" alt="Fig 2" width="45%"></a>
+  <a href="man/figures/example1.1_simulated1.png"><img src="man/figures/example1.1_simulated1.png" alt="Fig 1" width="45%"></a>
+  <a href="man/figures/example1.1_simulated2.png"><img src="man/figures/example1.1_simulated2.png" alt="Fig 2" width="45%"></a>
 </p>
 
 Alternatively, we can identify and plot the unique clades:
@@ -112,7 +114,7 @@ uniqueNodes(a, b, composition=T, dataframe=T,
 ```
 
 <p align="center">
-  <a href="tutorial/example1.1_unique.png"><img src="tutorial/example1.1_unique.png" alt="df" width="100%"></a>
+  <a href="man/figures/example1.1_unique.png"><img src="man/figures/example1.1_unique.png" alt="df" width="100%"></a>
 </p>
 
 #### Example 1.2 Support comparisons
@@ -137,7 +139,7 @@ ggplot(df, aes(as.numeric(Support_Tree_1), as.numeric(Support_Tree_2))) +
 ```
 
 <p align="center">
-  <a href="tutorial/example1.2_correlation.png"><img src="tutorial/example1.2_correlation.png" alt="df" width="100%"></a>
+  <a href="man/figures/example1.2_correlation.png"><img src="man/figures/example1.2_correlation.png" alt="df" width="100%"></a>
 </p>
 
 As expected, there is a significant correlation between bootstrap values of MOL and TE trees (Spearman: rho = 0.89; P < 0.001). 
@@ -186,7 +188,7 @@ ggplot(df, aes(as.numeric(EdgeLength_tree1), as.numeric(EdgeLength_tree2))) +
 ```
 
 <p align="center">
-  <a href="tutorial/example1.4_lengths.png"><img src="tutorial/example1.4_lengths.png" alt="df" width="100%"></a>
+  <a href="man/figures/example1.4_lengths.png"><img src="man/figures/example1.4_lengths.png" alt="df" width="100%"></a>
 </p>
 
 As expected, there is a significant correlation between bootstrap values of MOL and TE trees (lsinear model: estimate = 0.78; R-squared = 0.86; P < 0.001).
@@ -299,9 +301,21 @@ plitNoStates(input = "../testdata/015_MORPH_data.nexus",
              write=T)
 ```
 
-#### Example 3.2 Dynamic homology
+#### Example 3.2 Format conversions
 
+The functions *nexus2tnt* and *tnt2nexus* allow you to easily convert matrices between NEXUS and TNT formats. They are specifically designed to preserve data type headers (like `&[dna]` and `&[prot]`) and ordered character indices (`ccode +`), which are often lost when using generic tree-handling libraries. Ambiguities are also converted appropriately (e.g. `(01)` to `[01]` in TNT).
 
+```R
+# Convert NEXUS to TNT
+nexus2tnt(input_file = "../testdata/048_MORPH_data.nex",
+          output_file = "../testdata/048_converted.tnt")
+
+# Convert TNT to NEXUS
+tnt2nexus(input_file = "../testdata/059_MORPH_data.tnt",
+          output_file = "../testdata/059_converted.nexus")
+```
+
+#### Example 3.3 Dynamic homology
 
 ### Example 4 Tree manipulation
 
@@ -334,7 +348,7 @@ mpts = read.tree("../testdata/cymb_IP_trees.nwk")
 mapped_min <- mapBranchLength(strict, mpts, method = "minimum")
 
 # Plot strict + mapped side by side
-png("../tutorial/example4.2.png", width = 2400, height = 4000, res = 150)
+png("../man/figures/example4.2.png", width = 2400, height = 4000, res = 150)
 par(mfrow = c(1, 2),            # 1 row, 2 columns
     mar = c(4, 4, 2, 2),        # margins
     oma = c(1, 1, 1, 1))        # outer margins
@@ -350,5 +364,5 @@ dev.off()
 ```
 
 <p align="center">
-  <a href="tutorial/example4.2.png"><img src="tutorial/example4.2.png" alt="df" width="100%"></a>
+  <a href="man/figures/example4.2.png"><img src="man/figures/example4.2.png" alt="df" width="100%"></a>
 </p>
