@@ -1,6 +1,6 @@
 Package: RNODE
 Type: Package
-Title: Phylogenetic graph tools
+Title: An R package for phylogenetic operations
 Version: 0.3.0
 Author: Daniel Y. M. Nakamura, Taran Grant
 Maintainer: Daniel Y. M. Nakamura <dani_ymn@outlook.com>
