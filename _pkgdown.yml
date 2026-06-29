@@ -1,0 +1,55 @@
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  structure:
+    left:
+      - intro
+      - reference
+      - articles
+      - tutorials
+      - news
+    right: github
+  components:
+    articles:
+      text: Articles
+      menu:
+        - text: "Tree Comparisons"
+          href: articles/tree-comparisons.html
+        - text: "Matrix Handling"
+          href: articles/matrix-handling.html
+        - text: "Tree Manipulation"
+          href: articles/tree-manipulation.html
+
+reference:
+  - title: "Tree Comparison Functions"
+    desc: "Functions to compare topologies, support, and branch lengths between trees."
+    contents:
+      - compareBranchLength
+      - multiCID
+      - multiRF
+      - multiSPR
+      - normalizedSPR
+      - retrodictNodes
+      - sharedNodes
+      - summaryTopologicalDist
+      - uniqueNodes
+  - title: "Tree Handling Functions"
+    desc: "Functions for mapping support values and handling trees."
+    contents:
+      - addREP
+      - mapBranchLength
+      - mapSupport
+  - title: "Matrix Handling Functions"
+    desc: "Functions for manipulation of phylogenetic matrices and formats."
+    contents:
+      - findEqualLength
+      - concatenate
+      - filterInvariants
+      - filterMissing
+      - filterSharedTaxa
+      - splitNoStates
+      - splitOrdFromUnord
+      - nexus2tnt
+      - tnt2nexus
