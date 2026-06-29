@@ -1,4 +1,4 @@
-# RNODE 1.0.0
+# RNODE 0.2.0
 
 *   Added `nexus2tnt` and `tnt2nexus` format conversion functions to robustly handle data type headers and ordered characters.
 *   Updated the pkgdown website to use Bootstrap 5 with the "flatly" theme.

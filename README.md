@@ -38,7 +38,7 @@ The following functions are available in **RNODE**:
 | *addREP*                  | Tree handling    | Given one alignment and one tree with Goodman-Bremer support values, compute the ratio of explanatory power (REP). |
 | *mapBranchLength*         | Tree handling    | Given one tree without branch lengths (e.g. strict consensus) and another tree(s) with branch lengths (e.g. MPTs), map the branch lengths from the latter to the former. |
 | *mapSupport*              | Tree handling    | Given one tree with support values (e.g. majority consensus of bootstrap trees) and another tree without support values (e.g. strict consensus of optimal trees), map the support values from the former to the latter. |
-| *findEqualLength*         | Matrix handling  | Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG. |
+| *filterEqualLength*       | Matrix handling  | Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG. |
 | *concatenate*             | Matrix handling  | Given two molecular or morphological matrices, concatenate them by columns. Taxa present in only one matrix are filled with missing data ('?'). |
 | *filterInvariants*        | Matrix handling  | Given a matrix, delete characters containing only invariants. |
 | *filterMissing*           | Matrix handling  | Given a matrix, delete taxa and/or characters containing only missing data (?). |
@@ -57,4 +57,3 @@ For detailed tutorials and examples on how to use these functions, please refer 
 - [Tree Comparisons](https://dnakamuraz.github.io/RNODE/articles/tree-comparisons.html): Identifying shared and unique clades, support comparisons, logistic regressions, branch lengths, and topological distances.
 - [Matrix Handling](https://dnakamuraz.github.io/RNODE/articles/matrix-handling.html): Morphological filtering, shared taxa filtering, concatenating matrices, and formatting conversions (TNT / NEXUS).
 - [Tree Manipulation](https://dnakamuraz.github.io/RNODE/articles/tree-manipulation.html): Mapping support values and branch lengths across different trees.
-</p>

@@ -1,6 +1,23 @@
+url: https://dnakamuraz.github.io/RNODE/
+
 template:
   bootstrap: 5
   bootswatch: flatly
+  includes:
+    in_header: |
+      <meta name="description" content="RNODE: An R package for pre- and postprocessing of phylogenetic analyses, including tree comparisons, matrix handling, and topology manipulation.">
+
+home:
+  title: "RNODE • R Tools for Phylogenetic Analyses"
+  description: >
+    RNODE facilitates pre- and postprocessing of phylogenetic analyses,
+    including comparisons of topologies, branch lengths, support values,
+    manipulation of cladistic matrices, and tree handling.
+  links:
+    - text: Report a bug
+      href: https://github.com/dnakamuraz/RNODE/issues
+    - text: Phylogenetics in R
+      href: https://www.r-project.org
 
 navbar:
   structure:
@@ -8,48 +25,90 @@ navbar:
       - intro
       - reference
       - articles
-      - tutorials
       - news
     right: github
   components:
+    home:
+      icon: fa-home
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
     articles:
       text: Articles
       menu:
+        - text: "— Getting started —"
         - text: "Tree Comparisons"
           href: articles/tree-comparisons.html
         - text: "Matrix Handling"
           href: articles/matrix-handling.html
         - text: "Tree Manipulation"
           href: articles/tree-manipulation.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fa-github
+      href: https://github.com/dnakamuraz/RNODE/
+      aria-label: GitHub
 
 reference:
-  - title: "Tree Comparison Functions"
-    desc: "Functions to compare topologies, support, and branch lengths between trees."
+  - title: "Tree Comparison"
+    desc: >
+      Functions to compare topologies, support values, and branch lengths
+      between phylogenetic trees.
     contents:
+      - sharedNodes
+      - uniqueNodes
+      - retrodictNodes
       - compareBranchLength
-      - multiCID
+      - summaryTopologicalDist
       - multiRF
+      - multiCID
       - multiSPR
       - normalizedSPR
-      - retrodictNodes
-      - sharedNodes
-      - summaryTopologicalDist
-      - uniqueNodes
-  - title: "Tree Handling Functions"
-    desc: "Functions for mapping support values and handling trees."
+
+  - title: "Tree Handling"
+    desc: >
+      Functions for mapping support values and branch lengths across trees,
+      and for writing tree files.
     contents:
-      - addREP
-      - mapBranchLength
       - mapSupport
-  - title: "Matrix Handling Functions"
-    desc: "Functions for manipulation of phylogenetic matrices and formats."
+      - mapBranchLength
+      - addREP
+      - writeTree
+      - howManyPolytomies
+
+  - title: "Taxon Management"
+    desc: >
+      Functions for renaming and filtering taxa across matrices and trees.
     contents:
-      - findEqualLength
+      - renameTaxa
+      - filterTaxaList
+
+  - title: "Matrix Handling"
+    desc: >
+      Functions for filtering, concatenating, and converting phylogenetic
+      matrices (NEXUS / TNT formats).
+    contents:
       - concatenate
-      - filterInvariants
       - filterMissing
+      - filterInvariants
       - filterSharedTaxa
       - splitNoStates
       - splitOrdFromUnord
       - nexus2tnt
       - tnt2nexus
+
+  - title: "Internal / Miscellaneous"
+    desc: "Internal helpers and placeholder functions."
+    contents:
+      - hello
+
+articles:
+  - title: "Tutorials"
+    navbar: ~
+    contents:
+      - tree-comparisons
+      - matrix-handling
+      - tree-manipulation
