@@ -1,4 +1,4 @@
-# RNODE: Comparisons of topologies, support, and branch lengths between phylogenetic trees
+# RNODE: Facilitating pre- and postprocessing of phylogenetic analyses
 
 [![language](https://img.shields.io/badge/language-R-blue?style=flat&logo=r&logoColor=white)](https://www.r-project.org)
 [![author](https://img.shields.io/badge/author-DYM_Nakamura-blue?logo=googlescholar&logoColor=white)](https://scholar.google.com/citations?user=c0W8Cm8AAAAJ&hl=en)

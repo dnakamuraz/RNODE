@@ -11,7 +11,8 @@ concatenate(
   input2_format = NULL,
   output_file = NULL,
   output_format = NULL,
-  multiple_input = NULL
+  multiple_input = NULL,
+  gaps = NULL
 )
 }
 \arguments{
@@ -28,6 +29,11 @@ concatenate(
 \item{output_format}{Output format: 'nexus' or 'tnt'. If NULL, inferred from the extension of output_file ('.tnt' -> tnt, otherwise nexus). Ignored when output_file is NULL.}
 
 \item{multiple_input}{A directory path containing multiple TNT/NEXUS files to concatenate. If provided, `input1` and `input2` are ignored.}
+
+\item{gaps}{Logical controlling the gap-handling suffix written in TNT block headers (only relevant when `output_format = 'tnt'`).
+If `TRUE`, protein and DNA blocks are written as `&[prot gaps]` and `&[dna gaps]`.
+If `FALSE`, they are written as `&[prot nogaps]` and `&[dna nogaps]`.
+If `NULL` (default), no suffix is appended (`&[prot]` / `&[dna]`).}
 }
 \value{
 Invisibly returns the concatenated matrix.

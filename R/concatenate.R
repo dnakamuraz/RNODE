@@ -326,16 +326,27 @@ concatenate <- function(input1 = NULL, input2 = NULL,
       if (total_len < nchars) {
         pad <- paste(rep("?", nchars - total_len), collapse = "")
         for (i in seq_len(ntaxa)) seq_accum[i] <- paste0(seq_accum[i], pad)
-        block_sizes <- c(block_sizes, nchars - total_len)
+        # Extend the last block rather than adding an orphan block with no block_type
+        if (length(block_sizes) > 0) {
+          block_sizes[length(block_sizes)] <- block_sizes[length(block_sizes)] + (nchars - total_len)
+        } else {
+          block_sizes <- nchars - total_len
+          block_types <- c(block_types, "num")
+        }
       } else {
         for (i in seq_len(ntaxa)) seq_accum[i] <- substr(seq_accum[i], 1, nchars)
         cum_len <- cumsum(block_sizes)
         keep <- cum_len <= nchars
         if (any(keep)) {
           block_sizes <- block_sizes[keep]
-          if (sum(block_sizes) < nchars) block_sizes <- c(block_sizes, nchars - sum(block_sizes))
+          if (length(block_types) == length(keep)) block_types <- block_types[keep]
+          # Extend the last kept block rather than adding an orphan block with no block_type
+          if (sum(block_sizes) < nchars) {
+            block_sizes[length(block_sizes)] <- block_sizes[length(block_sizes)] + (nchars - sum(block_sizes))
+          }
         } else {
           block_sizes <- nchars
+          block_types <- "num"
         }
       }
     }
