@@ -16,6 +16,15 @@ tnt2nexus <- function(input_file, output_file) {
 
   in_matrix <- FALSE
 
+  parse_xread_dims <- function(line) {
+    cleaned <- gsub("['\"]", "", line)
+    nums <- unlist(regmatches(cleaned, gregexpr("\\b[0-9]+\\b", cleaned, perl = TRUE)))
+    if (length(nums) >= 2) {
+      return(as.numeric(nums[1:2]))
+    }
+    return(NULL)
+  }
+
   i <- 1
   while (i <= length(lines)) {
     line <- trimws(lines[i])
@@ -26,18 +35,21 @@ tnt2nexus <- function(input_file, output_file) {
       next
     }
 
-    if (line_lower == "xread") {
-      # read next non-empty line for dims
-      i <- i + 1
-      while (i <= length(lines) && (trimws(lines[i]) == "" || startsWith(trimws(lines[i]), "'"))) {
+    if (startsWith(line_lower, "xread")) {
+      dims <- parse_xread_dims(line)
+      if (is.null(dims)) {
+        # read next non-empty line for dims
         i <- i + 1
-      }
-      if (i <= length(lines)) {
-        dims <- unlist(strsplit(trimws(lines[i]), "\\s+"))
-        if (length(dims) >= 2) {
-          nchar <- as.numeric(dims[1])
-          ntax <- as.numeric(dims[2])
+        while (i <= length(lines) && (trimws(lines[i]) == "" || startsWith(trimws(lines[i]), "'"))) {
+          i <- i + 1
         }
+        if (i <= length(lines)) {
+          dims <- parse_xread_dims(lines[i])
+        }
+      }
+      if (!is.null(dims) && length(dims) >= 2) {
+        nchar <- dims[1]
+        ntax <- dims[2]
       }
 
       # start matrix read
