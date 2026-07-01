@@ -14,6 +14,10 @@
 #' @param output_file Output file path (e.g. "testdata/059_TE_data.tnt"). If NULL, the result is returned as an R object only.
 #' @param output_format Output format: 'nexus' or 'tnt'. If NULL, inferred from the extension of output_file ('.tnt' -> tnt, otherwise nexus). Ignored when output_file is NULL.
 #' @param multiple_input A directory path containing multiple TNT/NEXUS files to concatenate. If provided, `input1` and `input2` are ignored.
+#' @param gaps Logical controlling the gap-handling suffix written in TNT block headers (only relevant when `output_format = 'tnt'`).
+#'   If `TRUE`, protein and DNA blocks are written as `&[prot gaps]` and `&[dna gaps]`.
+#'   If `FALSE`, they are written as `&[prot nogaps]` and `&[dna nogaps]`.
+#'   If `NULL` (default), no suffix is appended (`&[prot]` / `&[dna]`).
 #' @return Invisibly returns the concatenated matrix.
 #' @examples
 #' # Concatenate all files in a folder
@@ -22,7 +26,8 @@
 concatenate <- function(input1 = NULL, input2 = NULL,
                         input1_format = NULL, input2_format = NULL,
                         output_file = NULL, output_format = NULL,
-                        multiple_input = NULL) {
+                        multiple_input = NULL,
+                        gaps = NULL) {
   # ---------------------------------------------------------------------------
   # Internal helpers (unchanged from previous version)
   # ---------------------------------------------------------------------------
@@ -236,6 +241,13 @@ concatenate <- function(input1 = NULL, input2 = NULL,
     end_idx <- which(grepl("^\\s*;", data_lines))[1]
     if (!is.na(end_idx)) data_lines <- data_lines[1:(end_idx - 1)]
 
+    normalize_tnt_block_type <- function(raw) {
+      raw <- trimws(tolower(raw))
+      if (grepl("^prot", raw)) return("protein")
+      if (grepl("^dna", raw))  return("dna")
+      return("num")
+    }
+
     taxa_order <- character(ntaxa)
     seq_accum <- character(ntaxa)
     block_sizes <- integer(0)
@@ -259,7 +271,7 @@ concatenate <- function(input1 = NULL, input2 = NULL,
           current_block_seq <- character(ntaxa)
         }
         block_type_match <- regmatches(line, regexpr("(?i)(?<=&\\[)[^\\]]+", line, perl = TRUE))
-        current_block_type <- if (length(block_type_match) > 0) block_type_match else "num"
+        current_block_type <- if (length(block_type_match) > 0) normalize_tnt_block_type(block_type_match) else "num"
         block_taxon_idx <- 1
         in_block <- TRUE
         remaining <- sub("^&\\[[^]]+\\]\\s*", "", line)
@@ -490,15 +502,22 @@ concatenate <- function(input1 = NULL, input2 = NULL,
       # Construct TNT output with all blocks
       ntaxa <- length(all_taxa)
       total_nchars <- ncol(result)
-      lines <- c("xread", paste(total_nchars, ntaxa))
+      has_protein <- any(bt_all == "protein")
+      lines <- if (has_protein) {
+        c("nstates 32", "xread", paste(total_nchars, ntaxa))
+      } else {
+        c("xread", paste(total_nchars, ntaxa))
+      }
+
+      gap_suffix <- if (isTRUE(gaps)) " gaps" else if (isFALSE(gaps)) " nogaps" else ""
 
       write_tnt_block <- function(mat_part, bs, bt, start_col) {
         for (i in seq_along(bs)) {
           end <- start_col + bs[i] - 1
           submat <- mat_part[, start_col:end, drop = FALSE]
           header <- switch(bt[i],
-            protein = "&[prot]",
-            dna = "&[dna]",
+            protein = paste0("&[prot", gap_suffix, "]"),
+            dna     = paste0("&[dna",  gap_suffix, "]"),
             "&[num]"
           )
           lines <<- c(lines, "", header)

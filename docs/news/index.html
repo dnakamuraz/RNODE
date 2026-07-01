@@ -39,12 +39,54 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="rnode-030">RNODE 0.3.0<a class="anchor" aria-label="anchor" href="#rnode-030"></a></h2>
-<ul><li>Added <code>nexus2tnt</code> and <code>tnt2nexus</code> format conversion functions to robustly handle data type headers and ordered characters.</li>
-<li>Updated the pkgdown website to use Bootstrap 5 with the “flatly” theme.</li>
-<li>Restructured documentation by extracting large README examples into separate vignette articles (“Tree Comparisons”, “Matrix Handling”, “Tree Manipulation”).</li>
-<li>Added <code>NEWS.md</code> to track changes and updates.</li>
+<div class="section level4">
+<h4 id="new-functions-0-3-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-3-0"></a></h4>
+<ul><li>
+<code>filterSharedTaxa</code>: given two input matrices, create a new matrix containing shared terminals.</li>
+<li>
+<code>concatenate</code>: given two input matrices, create a new matrix concatenating partitions.</li>
+<li>
+<code>tnt2nexus</code>: convert TNT to NEXUS matrices.</li>
+<li>
+<code>nexus2tnt</code>: convert NEXUS to TNT matrices.</li>
 </ul></div>
-  </main></div>
+<div class="section level4">
+<h4 id="improvements-0-3-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-3-0"></a></h4>
+<ul><li>
+<code>multiSPR</code>: maxSPR implemented.</li>
+<li>
+<code>filterInvariants</code>: automatic detection of input format.</li>
+<li>
+<code>filterMissing</code>: automatic detection of input format.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="rnode-020">RNODE 0.2.0<a class="anchor" aria-label="anchor" href="#rnode-020"></a></h2>
+<div class="section level4">
+<h4 id="new-functions-0-2-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-2-0"></a></h4>
+<ul><li>
+<code>compareBranchLength</code>: Given two input trees, compare branch lengths of internal edges (shared clades) and terminal edges (shared leaves).</li>
+<li>
+<code>mapBranchLength</code>: Given one tree without branch lengths and another tree(s) with branch lengths, map the branch lengths from the latter to the former.</li>
+<li>
+<code>mapSupport</code>: Given one tree with support values and another tree without support values, map the support values from the former to the latter.</li>
+<li>
+<code>filterInvariants</code>: Given a matrix, delete characters containing only invariants.</li>
+<li>
+<code>splitNoStates</code>: Given a morphological matrix, split it based on the number of character-states for MK(v) models.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="improvements-0-2-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-0"></a></h4>
+<ul><li>
+<code>splitOrdFromUnord</code>: Deleted the parameter “invariant”.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="tutorials-0-2-0">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials-0-2-0"></a></h4>
+<p>Available for all functions.</p>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
