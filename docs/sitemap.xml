@@ -23,6 +23,8 @@
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/multiCID.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/multiRF.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/multiSPR.html</loc></url>
+<url><loc>https://dnakamuraz.github.io/RNODE/reference/nex2fas.html</loc></url>
+<url><loc>https://dnakamuraz.github.io/RNODE/reference/nex2tnt.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/nexus2tnt.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/normalizedSPR.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/renameTaxa.html</loc></url>
@@ -31,6 +33,8 @@
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/splitNoStates.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/splitOrdFromUnord.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/summaryTopologicalDist.html</loc></url>
+<url><loc>https://dnakamuraz.github.io/RNODE/reference/tnt2fas.html</loc></url>
+<url><loc>https://dnakamuraz.github.io/RNODE/reference/tnt2nex.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/tnt2nexus.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/uniqueNodes.html</loc></url>
 <url><loc>https://dnakamuraz.github.io/RNODE/reference/writeTree.html</loc></url>

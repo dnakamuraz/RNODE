@@ -4,8 +4,8 @@
 
 *   `filterSharedTaxa`: given two input matrices, create a new matrix containing shared terminals.
 *   `concatenate`: given two input matrices, create a new matrix concatenating partitions.
-*   `tnt2nexus`: convert TNT to NEXUS matrices.
-*   `nexus2tnt`: convert NEXUS to TNT matrices.
+*   `tnt2nex`: convert TNT to NEXUS matrices.
+*   `nex2tnt`: convert NEXUS to TNT matrices.
 
 ### Improvements
 

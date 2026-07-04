@@ -56,7 +56,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="rnode-comparisons-of-topologies-support-and-branch-lengths-between-phylogenetic-trees">RNODE: Comparisons of topologies, support, and branch lengths between phylogenetic trees<a class="anchor" aria-label="anchor" href="#rnode-comparisons-of-topologies-support-and-branch-lengths-between-phylogenetic-trees"></a>
+<div class="page-header"><h1 id="rnode-facilitating-pre--and-postprocessing-of-phylogenetic-analyses">RNODE: Facilitating pre- and postprocessing of phylogenetic analyses<a class="anchor" aria-label="anchor" href="#rnode-facilitating-pre--and-postprocessing-of-phylogenetic-analyses"></a>
 </h1></div>
 <p><a href="https://www.r-project.org" class="external-link"><img src="https://img.shields.io/badge/language-R-blue?style=flat&amp;logo=r&amp;logoColor=white" alt="language"></a> <a href="https://scholar.google.com/citations?user=c0W8Cm8AAAAJ&amp;hl=en" class="external-link"><img src="https://img.shields.io/badge/author-DYM_Nakamura-blue?logo=googlescholar&amp;logoColor=white" alt="author"></a> <a href="https://www.gnu.org/licenses/gpl-3.0.html" class="external-link"><img src="https://img.shields.io/badge/license-GPL_v3-blue?logo=gnu&amp;logoColor=white" alt="license"></a></p>
 <p><strong>RNODE</strong> is an R package to facilitate pre- and postprocessing of phylogenetic analyses, including (1) comparisons of topologies, branch lengths, support values, (2) comparison of DNA sequences, (3) manipulation of cladistic matrices, and (4) manipulation of trees.</p>
@@ -75,130 +75,6 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>The following functions are available in <strong>RNODE</strong>:</p>
-<table class="table">
-<colgroup>
-<col width="46%">
-<col width="31%">
-<col width="22%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Function</th>
-<th align="left">Class</th>
-<th align="left">Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left"><em>compareBranchLength</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two input trees, compare branch lengths of internal edges (shared clades) and terminal edges (shared leaves). The output is a dataframe with node labels and branch lengths.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>multiCID</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two sets of binary trees (e.g. MPTs), compute CI distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values).</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>multiRF</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two sets of binary trees (e.g. MPTs), compute RF distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values).</td>
-</tr>
-<tr class="even">
-<td align="left"><em>multiSPR</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two sets of binary trees (e.g. MPTs), compute SPR distances (normalized or not) between two randomly selected trees or between multiple pairs of trees (all trees or a subsample of them) and then summarize distances as mean, minimum, or maximum values).</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>normalizedSPR</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two binary trees, compute the normalized SPR distance using the upper bound from Ding et al. (2011).</td>
-</tr>
-<tr class="even">
-<td align="left"><em>retrodictNodes</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two input trees, create a dataframe containing support values of one tree and clade occurrence of another tree.</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>sharedNodes</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two input trees, compare shared clades. The output is (1) basic statistics about the number of shared clades, support values and their correlation; (2) a dataframe with node labels, descendants, and support values of shared clades, which facilitates descriptive and statistical comparisons of clade composition and support between corresponding nodes.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>summaryTopologicalDist</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two sets of trees, compute the number of shared clades, number of unique clades in each tree, Robinson-Foulds, and Cluster Information distance.</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>uniqueNodes</em></td>
-<td align="left">Tree comparison</td>
-<td align="left">Given two input trees, identify unique clades. The output is two lists containing unique clades and support values in each tree.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>addREP</em></td>
-<td align="left">Tree handling</td>
-<td align="left">Given one alignment and one tree with Goodman-Bremer support values, compute the ratio of explanatory power (REP).</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>mapBranchLength</em></td>
-<td align="left">Tree handling</td>
-<td align="left">Given one tree without branch lengths (e.g. strict consensus) and another tree(s) with branch lengths (e.g. MPTs), map the branch lengths from the latter to the former.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>mapSupport</em></td>
-<td align="left">Tree handling</td>
-<td align="left">Given one tree with support values (e.g. majority consensus of bootstrap trees) and another tree without support values (e.g. strict consensus of optimal trees), map the support values from the former to the latter.</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>filterEqualLength</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given multiple gene alignments, identify gap and gapless files, and write a template of a script considering gap files as unaligned and gapless files as prealigned for POY/PhyG.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>concatenate</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given two molecular or morphological matrices, concatenate them by columns. Taxa present in only one matrix are filled with missing data (‘?’).</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>filterInvariants</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given a matrix, delete characters containing only invariants.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>filterMissing</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given a matrix, delete taxa and/or characters containing only missing data (?).</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>filterSharedTaxa</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given two molecular or morphological matrices, filter taxa using shared taxa only, shared taxa plus taxa unique to input 1, or shared taxa plus taxa unique to input 2.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>splitNoStates</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given a morphological matrix, split it based on the number of character-states for MK(v) models.</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>splitOrdFromUnord</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Given a morphological matrix and a list of ordered and unordered characters, split the matrix into two matrices.</td>
-</tr>
-<tr class="even">
-<td align="left"><em>nexus2tnt</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Converts a NEXUS matrix into TNT format while preserving header data types and ordered character structures.</td>
-</tr>
-<tr class="odd">
-<td align="left"><em>tnt2nexus</em></td>
-<td align="left">Matrix handling</td>
-<td align="left">Converts a TNT matrix into NEXUS format while preserving header data types and ordered character structures.</td>
-</tr>
-</tbody>
-</table>
-<p>The following examples are designed for users with little experience. If you have questions, send a message using GitHub issues.</p>
-<div class="section level4">
-<h4 id="tutorials-and-examples">Tutorials and Examples<a class="anchor" aria-label="anchor" href="#tutorials-and-examples"></a>
-</h4>
 <p>For detailed tutorials and examples on how to use these functions, please refer to the package vignettes available on the website’s Articles section:</p>
 <ul>
 <li>
@@ -208,7 +84,6 @@
 <li>
 <a href="https://dnakamuraz.github.io/RNODE/articles/tree-manipulation.html">Tree Manipulation</a>: Mapping support values and branch lengths across different trees.</li>
 </ul>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

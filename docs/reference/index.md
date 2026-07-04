@@ -66,10 +66,14 @@ matrices (NEXUS / TNT formats).
   : splitNoStates
 - [`splitOrdFromUnord()`](https://dnakamuraz.github.io/RNODE/reference/splitOrdFromUnord.md)
   : splitOrdFromUnord
-- [`nexus2tnt()`](https://dnakamuraz.github.io/RNODE/reference/nexus2tnt.md)
-  : nexus2tnt
-- [`tnt2nexus()`](https://dnakamuraz.github.io/RNODE/reference/tnt2nexus.md)
-  : tnt2nexus
+- [`nex2tnt()`](https://dnakamuraz.github.io/RNODE/reference/nex2tnt.md)
+  : nex2tnt
+- [`tnt2nex()`](https://dnakamuraz.github.io/RNODE/reference/tnt2nex.md)
+  : tnt2nex
+- [`nex2fas()`](https://dnakamuraz.github.io/RNODE/reference/nex2fas.md)
+  : nex2fas
+- [`tnt2fas()`](https://dnakamuraz.github.io/RNODE/reference/tnt2fas.md)
+  : tnt2fas
 
 ## Internal / Miscellaneous
 

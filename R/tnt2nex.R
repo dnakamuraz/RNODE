@@ -1,12 +1,12 @@
-#' @title tnt2nexus
-#' @name tnt2nexus
+#' @title tnt2nex
+#' @name tnt2nex
 #' @description Converts a TNT matrix into NEXUS format while preserving header data type and ordered character structures.
 #' @author Daniel YM Nakamura
 #' @param input_file Path to the input TNT file.
 #' @param output_file Path to the output NEXUS file.
 #' @param iupac_ambiguity Logical; if TRUE, uses IUPAC symbols for ambiguities (e.g. R, Y), otherwise outputs between parentheses (e.g. (CT)).
 #' @export
-tnt2nexus <- function(input_file, output_file, iupac_ambiguity = FALSE) {
+tnt2nex <- function(input_file, output_file, iupac_ambiguity = FALSE) {
   lines <- readLines(input_file, warn = FALSE)
 
   nchar <- 0
@@ -100,6 +100,10 @@ tnt2nexus <- function(input_file, output_file, iupac_ambiguity = FALSE) {
                                      "ACT" = "H",
                                      "ACG" = "V",
                                      "ACGT" = "N",
+                                     "DN" = "B",
+                                     "EQ" = "Z",
+                                     "IL" = "J",
+                                     "ACDEFGHIKLMNPQRSTVWY" = "X",
                                      ambig)
                 
                 pattern <- gsub("([\\(\\)])", "\\\\\\1", ambig)

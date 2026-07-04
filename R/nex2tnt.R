@@ -1,11 +1,11 @@
-#' @title nexus2tnt
-#' @name nexus2tnt
+#' @title nex2tnt
+#' @name nex2tnt
 #' @description Converts a NEXUS matrix into TNT format while preserving header data type and ordered character structures.
 #' @author Daniel YM Nakamura
 #' @param input_file Path to the input NEXUS file.
 #' @param output_file Path to the output TNT file.
 #' @export
-nexus2tnt <- function(input_file, output_file) {
+nex2tnt <- function(input_file, output_file) {
   lines <- readLines(input_file, warn = FALSE)
 
   ntax <- 0

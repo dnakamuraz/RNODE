@@ -97,8 +97,10 @@ reference:
       - filterSharedTaxa
       - splitNoStates
       - splitOrdFromUnord
-      - nexus2tnt
-      - tnt2nexus
+      - nex2tnt
+      - tnt2nex
+      - nex2fas
+      - tnt2fas
 
   - title: "Internal / Miscellaneous"
     desc: "Internal helpers and placeholder functions."

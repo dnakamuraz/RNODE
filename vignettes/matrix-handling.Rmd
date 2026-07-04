@@ -110,14 +110,14 @@ splitNoStates(input = "../testdata/015_MORPH_data.nexus",
 
 ## Format conversions
 
-The functions `nexus2tnt` and `tnt2nexus` allow you to easily convert matrices between NEXUS and TNT formats. They are specifically designed to preserve data type headers (like `&[dna]` and `&[prot]`) and ordered character indices (`ccode +`), which are often lost when using generic tree-handling libraries. Ambiguities are also converted appropriately (e.g. `(01)` to `[01]` in TNT).
+The functions `nex2tnt` and `tnt2nex` allow you to easily convert matrices between NEXUS and TNT formats. They are specifically designed to preserve data type headers (like `&[dna]` and `&[prot]`) and ordered character indices (`ccode +`), which are often lost when using generic tree-handling libraries. Ambiguities are also converted appropriately (e.g. `(01)` to `[01]` in TNT).
 
 ```r
 # Convert NEXUS to TNT
-nexus2tnt(input_file = "../testdata/048_MORPH_data.nex",
+nex2tnt(input_file = "../testdata/048_MORPH_data.nex",
           output_file = "../testdata/048_converted.tnt")
 
 # Convert TNT to NEXUS
-tnt2nexus(input_file = "../testdata/059_MORPH_data.tnt",
+tnt2nex(input_file = "../testdata/059_MORPH_data.tnt",
           output_file = "../testdata/059_converted.nexus")
 ```
