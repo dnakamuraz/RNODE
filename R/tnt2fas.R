@@ -26,7 +26,18 @@ tnt2fas <- function(input_file, output_file, iupac_ambiguity = TRUE) {
     line <- trimws(lines[i])
     line_lower <- tolower(line)
 
-    if (line_lower == "xread" || grepl("^xread", line_lower) || grepl("^nstates", line_lower)) {
+    # Detect nstates dna/prot header (sets datatype, does NOT start matrix)
+    if (grepl("^nstates", line_lower)) {
+      if (grepl("dna", line_lower)) {
+        datatype <- "DNA"
+      } else if (grepl("prot", line_lower)) {
+        datatype <- "PROTEIN"
+      }
+      i <- i + 1
+      next
+    }
+
+    if (line_lower == "xread" || grepl("^xread", line_lower)) {
       if (line_lower == "xread" && i < length(lines)) {
         i <- i + 1
         line <- trimws(lines[i])
@@ -43,6 +54,7 @@ tnt2fas <- function(input_file, output_file, iupac_ambiguity = TRUE) {
       next
     }
 
+
     if (in_matrix) {
       if (line == ";" || line_lower == "proc /;") {
         in_matrix <- FALSE
@@ -54,35 +66,39 @@ tnt2fas <- function(input_file, output_file, iupac_ambiguity = TRUE) {
         datatype <- "STANDARD"
       } else if (line != "") {
         if (datatype %in% c("DNA", "PROTEIN")) {
-          parts <- unlist(strsplit(line, "\\s+"))
+          # Collapse spaces inside [...] so [A G] -> [AG] before splitting on whitespace
+          line_clean <- line
+          while (grepl("[[][^]]*[[:space:]][^]]*[]]", line_clean)) {
+            line_clean <- gsub("[[]([^]]*)[[:space:]]([^]]*)[]]", "[\\1\\2]", line_clean)
+          }
+
+          parts <- unlist(strsplit(line_clean, "[[:space:]]+"))
           if (length(parts) >= 2) {
             taxon <- parts[1]
             seq_data <- paste(parts[-1], collapse = "")
-            
+
             if (iupac_ambiguity) {
-              matches <- gregexpr("\\[([^\\]]+)\\]", seq_data)
-              ambigs <- regmatches(seq_data, matches)[[1]]
+              ambigs <- regmatches(seq_data, gregexpr("[[][^]]+[]]", seq_data))[[1]]
               if (length(ambigs) > 0) {
                 for (ambig in unique(ambigs)) {
-                  chars <- gsub("[\\[\\]]", "", ambig)
-                  chars <- toupper(strsplit(chars, "")[[1]])
-                  chars <- chars[chars != " " & chars != ""]
-                  chars <- sort(unique(chars))
+                  chars <- gsub("[[]|[]]", "", ambig)
+                  chars <- sort(unique(toupper(strsplit(chars, "")[[1]])))
                   chars_str <- paste(chars, collapse = "")
-                  
+
                   iupac_code <- switch(chars_str,
                                        "AG" = "R", "CT" = "Y", "CG" = "S", "AT" = "W",
                                        "GT" = "K", "AC" = "M", "CGT" = "B", "AGT" = "D",
                                        "ACT" = "H", "ACG" = "V", "ACGT" = "N",
                                        "DN" = "B", "EQ" = "Z", "IL" = "J",
                                        "ACDEFGHIKLMNPQRSTVWY" = "X", ambig)
-                  
-                  pattern <- gsub("([\\[\\]])", "\\\\\\1", ambig)
-                  seq_data <- gsub(pattern, iupac_code, seq_data)
+
+                  # Escape the literal [ and ] for gsub pattern
+                  pattern <- gsub("[[]", "\\\\[", gsub("[]]", "\\\\]", ambig))
+                  seq_data <- gsub(pattern, iupac_code, seq_data, fixed = FALSE)
                 }
               }
             }
-            
+
             if (is.null(taxa_seqs[[taxon]])) {
               taxa_seqs[[taxon]] <- seq_data
             } else {
