@@ -4,8 +4,9 @@
 #' @author Daniel YM Nakamura
 #' @param input_file Path to the input TNT file.
 #' @param output_file Path to the output NEXUS file.
+#' @param iupac_ambiguity Logical; if TRUE, uses IUPAC symbols for ambiguities (e.g. R, Y), otherwise outputs between parentheses (e.g. (CT)).
 #' @export
-tnt2nexus <- function(input_file, output_file) {
+tnt2nexus <- function(input_file, output_file, iupac_ambiguity = FALSE) {
   lines <- readLines(input_file, warn = FALSE)
 
   nchar <- 0
@@ -72,9 +73,41 @@ tnt2nexus <- function(input_file, output_file) {
         parts <- unlist(strsplit(line, "\\s+"))
         if (length(parts) >= 2) {
           taxon <- parts[1]
-          seq_data <- paste(parts[-1], collapse = " ") # Keep spaces if any in TNT
+          seq_data <- paste(parts[-1], collapse = "")
           seq_data <- gsub("\\[", "(", seq_data)
           seq_data <- gsub("\\]", ")", seq_data)
+          
+          if (iupac_ambiguity) {
+            matches <- gregexpr("\\([^)]+\\)", seq_data)
+            ambigs <- regmatches(seq_data, matches)[[1]]
+            if (length(ambigs) > 0) {
+              for (ambig in unique(ambigs)) {
+                chars <- gsub("[\\(\\)]", "", ambig)
+                chars <- toupper(strsplit(chars, "")[[1]])
+                chars <- chars[chars != " " & chars != ""]
+                chars <- sort(unique(chars))
+                chars_str <- paste(chars, collapse = "")
+                
+                iupac_code <- switch(chars_str,
+                                     "AG" = "R",
+                                     "CT" = "Y",
+                                     "CG" = "S",
+                                     "AT" = "W",
+                                     "GT" = "K",
+                                     "AC" = "M",
+                                     "CGT" = "B",
+                                     "AGT" = "D",
+                                     "ACT" = "H",
+                                     "ACG" = "V",
+                                     "ACGT" = "N",
+                                     ambig)
+                
+                pattern <- gsub("([\\(\\)])", "\\\\\\1", ambig)
+                seq_data <- gsub(pattern, iupac_code, seq_data)
+              }
+            }
+          }
+          
           matrix_lines <- c(matrix_lines, paste(taxon, seq_data))
         } else {
           matrix_lines <- c(matrix_lines, line)
