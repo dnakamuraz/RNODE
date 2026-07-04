@@ -61,11 +61,11 @@ tnt2nexus <- function(input_file, output_file) {
     if (in_matrix) {
       if (line == ";" || line_lower == "proc /;") {
         in_matrix <- FALSE
-      } else if (startsWith(line_lower, "&[dna]") || startsWith(line_lower, "& [dna]")) {
+      } else if (startsWith(line_lower, "&[dna") || startsWith(line_lower, "& [dna")) {
         datatype <- "DNA"
-      } else if (startsWith(line_lower, "&[prot]") || startsWith(line_lower, "& [prot]")) {
+      } else if (startsWith(line_lower, "&[prot") || startsWith(line_lower, "& [prot")) {
         datatype <- "PROTEIN"
-      } else if (startsWith(line_lower, "&[num]") || startsWith(line_lower, "& [num]")) {
+      } else if (startsWith(line_lower, "&[num") || startsWith(line_lower, "& [num")) {
         datatype <- "STANDARD"
       } else if (line != "") {
         # Check if line contains taxon data (starts with alphanumeric or quote)
