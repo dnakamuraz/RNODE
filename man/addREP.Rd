@@ -4,15 +4,22 @@
 \alias{addREP}
 \title{addREP}
 \usage{
-addREP(data, tree)
+addREP(tree, best_tree_length, worst_tree_length, output_file = NULL)
 }
 \arguments{
-\item{data}{A cladistic matrix.}
-
 \item{tree}{A \code{phylo} object that can be loaded using \code{ape::read.tree} for NEWICK files or \code{TreeTools::ReadTntTree} for TNT files.}
+
+\item{best_tree_length}{The length of the best tree.}
+
+\item{worst_tree_length}{The length of the worst tree. It can be computed in POY using negative weights.}
+
+\item{output_file}{A character string specifying the name of the output file in NEXUS format. Default is \code{NULL} (no file is written).}
+}
+\value{
+A \code{phylo} object with the original Goodman-Bremer support values replaced by REP values.
 }
 \description{
-Given one alignment and one tree with Goodman-Bremer (GB) support values, compute the ratio of explanatory power (REP) using equally weighted parsimony.
+Given a tree with Goodman-Bremer (GB) support values and the length of the worst tree, compute the ratio of explanatory power (REP).
 }
 \details{
 Grant & Kluge (2007, 2010) proposed REP as a new measure of optimality-based support, in which support values follow the same rank order from GB. REP has the advantage of scaling GB values by the maximum GB, making REP comparable across datasets. REP is calculated as:

@@ -43,7 +43,7 @@ addREP <- function(tree,
 
     # Update valid numeric labels with calculated REP values (rounded for readability, e.g., 4 decimal places)
     valid_indices <- !is.na(gb_values)
-    tree$node.label[valid_indices] <- as.character(round(rep_values[valid_indices], 4))
+    tree$node.label[valid_indices] <- as.character(round(rep_values[valid_indices], 20))
 
     # Write the tree to a NEXUS file if an output_file string is provided
     if (!is.null(output_file)) {
