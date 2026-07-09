@@ -196,15 +196,13 @@ concatenate <- function(input1 = NULL, input2 = NULL,
   }
 
   format_tnt_sequence <- function(cells) {
-    sapply(cells, function(x) {
-      if (grepl("^[\\[\\(\\{].*[\\]\\)\\}]$", x)) {
-        return(x)
-      }
-      if (nchar(x) > 1) {
-        return(paste0("[", x, "]"))
-      }
-      return(x)
-    }, USE.NAMES = FALSE)
+    already_formatted <- grepl("^\\[.*\\]$|^\\(.*\\)$|^\\{.*\\}$", cells)
+    needs_brackets <- (nchar(cells) > 1) & !already_formatted
+    res <- cells
+    if (any(needs_brackets)) {
+      res[needs_brackets] <- paste0("[", cells[needs_brackets], "]")
+    }
+    return(res)
   }
 
   # Robust TNT reader (handles titles, interleaved blocks, brackets)
@@ -261,7 +259,7 @@ concatenate <- function(input1 = NULL, input2 = NULL,
       line <- trimws(line)
       if (line == "" || grepl("^;", line)) next
 
-      if (grepl("^&", line)) {
+      if (grepl("^&\\s*\\[", line)) {
         if (in_block) {
           if (block_taxon_idx != ntaxa + 1) warning("Block ended with incomplete taxa.")
           block_len <- nchar(current_block_seq[1])
@@ -270,11 +268,11 @@ concatenate <- function(input1 = NULL, input2 = NULL,
           for (i in seq_len(ntaxa)) seq_accum[i] <- paste0(seq_accum[i], current_block_seq[i])
           current_block_seq <- character(ntaxa)
         }
-        block_type_match <- regmatches(line, regexpr("(?i)(?<=&\\[)[^\\]]+", line, perl = TRUE))
-        current_block_type <- if (length(block_type_match) > 0) normalize_tnt_block_type(block_type_match) else "num"
+        block_type_match <- sub("(?i)^&\\s*\\[([^\\]]+)\\].*", "\\1", line, perl = TRUE)
+        current_block_type <- normalize_tnt_block_type(block_type_match)
         block_taxon_idx <- 1
         in_block <- TRUE
-        remaining <- sub("^&\\[[^]]+\\]\\s*", "", line)
+        remaining <- sub("^&\\s*\\[[^]]+\\]\\s*", "", line)
         if (nchar(remaining) > 0) {
           tokens <- unlist(strsplit(remaining, "\\s+"))
           for (i in seq(1, length(tokens), by = 2)) {
@@ -534,7 +532,7 @@ concatenate <- function(input1 = NULL, input2 = NULL,
           lines <<- c(lines, "", header)
           for (j in seq_len(ntaxa)) {
             seq <- paste(format_tnt_sequence(submat[j, ]), collapse = "")
-            lines <<- c(lines, paste0(rownames(mat_part)[j], "\t", seq))
+            lines <<- c(lines, paste0(rownames(mat_part)[j], " ", seq))
           }
           start_col <- end + 1
         }

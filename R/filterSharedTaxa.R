@@ -282,6 +282,99 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
     gsub("\\(([^)]+)\\)", "[\\1]", sequence, perl = TRUE)
   }
 
+  get_ordered_chars <- function(input_val, format_type) {
+    if (is.matrix(input_val) || is.data.frame(input_val) ||
+      !is.character(input_val) || !file.exists(input_val)) {
+      return(integer(0))
+    }
+    lines <- readLines(input_val, warn = FALSE)
+    content <- paste(lines, collapse = " ")
+    ordered_idx <- integer(0)
+    if (format_type == "nexus") {
+      matches <- gregexpr("(?i)TYPESET\\s+\\*?\\s*Ordered\\s*=\\s*([^;]+);", content, perl = TRUE)
+      if (matches[[1]][1] != -1) {
+        captures <- regmatches(content, matches)[[1]]
+        for (cap in captures) {
+          body <- sub("(?i).*?Ordered\\s*=\\s*", "", cap, perl = TRUE)
+          body <- sub(";.*$", "", body)
+          tokens <- unlist(strsplit(trimws(body), "\\s+"))
+          for (tk in tokens) {
+            if (grepl("-", tk)) {
+              pts <- as.numeric(unlist(strsplit(tk, "-")))
+              if (length(pts) == 2 && !any(is.na(pts))) ordered_idx <- c(ordered_idx, seq(pts[1], pts[2]))
+            } else if (tk != "") {
+              v <- as.numeric(tk)
+              if (!is.na(v)) ordered_idx <- c(ordered_idx, v)
+            }
+          }
+        }
+      }
+      return(unique(ordered_idx))
+    } else if (format_type == "tnt") {
+      matches <- gregexpr("(?i)cc\\s+\\+\\s*([^;]+);", content, perl = TRUE)
+      if (matches[[1]][1] != -1) {
+        captures <- regmatches(content, matches)[[1]]
+        for (cap in captures) {
+          body <- sub("(?i)cc\\s+\\+\\s*", "", cap, perl = TRUE)
+          body <- sub(";.*$", "", body)
+          tokens <- unlist(strsplit(trimws(body), "\\s+"))
+          for (tk in tokens) {
+            if (grepl("\\.", tk)) {
+              parts <- as.numeric(strsplit(tk, "\\.+")[[1]])
+              if (length(parts) == 2 && !any(is.na(parts))) ordered_idx <- c(ordered_idx, seq(parts[1] + 1, parts[2] + 1))
+            } else if (grepl("-", tk)) {
+              parts <- as.numeric(strsplit(tk, "-")[[1]])
+              if (length(parts) == 2 && !any(is.na(parts))) ordered_idx <- c(ordered_idx, seq(parts[1] + 1, parts[2] + 1))
+            } else if (tk != "") {
+              v <- as.numeric(tk)
+              if (!is.na(v)) ordered_idx <- c(ordered_idx, v + 1)
+            }
+          }
+        }
+      }
+      return(unique(ordered_idx))
+    }
+    return(integer(0))
+  }
+
+  format_tnt_ordered <- function(idx) {
+    if (length(idx) == 0) return("")
+    idx <- sort(unique(idx))
+    chunks <- character(0)
+    start_val <- prev_val <- idx[1]
+    if (length(idx) > 1) {
+      for (i in seq_along(idx)[-1]) {
+        if (idx[i] == prev_val + 1) {
+          prev_val <- idx[i]
+        } else {
+          chunks <- c(chunks, if (start_val == prev_val) start_val else paste0(start_val, ".", prev_val))
+          start_val <- prev_val <- idx[i]
+        }
+      }
+    }
+    chunks <- c(chunks, if (start_val == prev_val) start_val else paste0(start_val, ".", prev_val))
+    paste(chunks, collapse = " ")
+  }
+
+  format_nexus_ordered <- function(idx) {
+    if (length(idx) == 0) return("")
+    idx <- sort(unique(idx))
+    chunks <- character(0)
+    start_val <- prev_val <- idx[1]
+    if (length(idx) > 1) {
+      for (i in seq_along(idx)[-1]) {
+        if (idx[i] == prev_val + 1) {
+          prev_val <- idx[i]
+        } else {
+          chunks <- c(chunks, if (start_val == prev_val) start_val else paste0(start_val, "-", prev_val))
+          start_val <- prev_val <- idx[i]
+        }
+      }
+    }
+    chunks <- c(chunks, if (start_val == prev_val) start_val else paste0(start_val, "-", prev_val))
+    paste(chunks, collapse = " ")
+  }
+
   # Helper function to write TNT format
   write_tnt_lines <- function(lines, filename) {
     if (length(lines) > 0 && lines[1] == "nstates 32") {
@@ -293,7 +386,7 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
   }
 
   # Helper function to write TNT format
-  write_tnt_format <- function(mat, filename, format = "standard") {
+  write_tnt_format <- function(mat, filename, format = "standard", ordered = integer(0)) {
     ntaxa <- nrow(mat)
     nchars <- ncol(mat)
 
@@ -316,12 +409,16 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
       lines <- c(lines, paste0(taxon, "\t", sequence))
     }
 
-    lines <- c(lines, ";", "", "", "proc /;", "comments 0", ";", "", "")
+    lines <- c(lines, ";", "")
+    if (length(ordered) > 0) {
+      lines <- c(lines, paste0("cc + ", format_tnt_ordered(ordered - 1), ";"), "")
+    }
+    lines <- c(lines, "proc /;", "comments 0", ";", "", "")
     write_tnt_lines(lines, filename)
   }
 
   # Helper function to write TNT format with multiple blocks
-  write_tnt_format_concat <- function(mat1, mat2, filename, format1 = "standard", format2 = "standard") {
+  write_tnt_format_concat <- function(mat1, mat2, filename, format1 = "standard", format2 = "standard", ord1 = integer(0), ord2 = integer(0)) {
     ntaxa <- nrow(mat1)
     nchars1 <- ncol(mat1)
     nchars2 <- ncol(mat2)
@@ -376,12 +473,22 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
       }
     }
 
-    lines <- c(lines, ";", "", "", "proc /;", "comments 0", ";", "", "")
+    tnt_ordered <- integer(0)
+    if (length(ord1) > 0) tnt_ordered <- c(tnt_ordered, ord1 - 1)
+    if (length(ord2) > 0) tnt_ordered <- c(tnt_ordered, ord2 - 1 + nchars1)
+
+    lines <- c(lines, ";", "")
+    if (length(tnt_ordered) > 0) {
+      lines <- c(lines, paste0("cc + ", format_tnt_ordered(tnt_ordered), ";"), "")
+    }
+    lines <- c(lines, "proc /;", "comments 0", ";", "", "")
     write_tnt_lines(lines, filename)
   }
 
   format1 <- "unknown"
   format2 <- "unknown"
+  ord1 <- integer(0)
+  ord2 <- integer(0)
 
   # Load first matrix
   if (is.matrix(input1) || is.data.frame(input1)) {
@@ -405,6 +512,7 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
 
     if (input1_format == "nexus") {
       format1 <- detect_format_from_nexus(input1)
+      ord1 <- get_ordered_chars(input1, "nexus")
       mat1 <- TreeTools::ReadCharacters(input1)
     } else if (input1_format == "fasta") {
       mat1 <- ape::read.FASTA(input1)
@@ -416,6 +524,7 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
       }
     } else if (input1_format == "tnt") {
       format1 <- detect_format_from_tnt(input1)
+      ord1 <- get_ordered_chars(input1, "tnt")
       mat1 <- read_tnt_manual(input1)
     } else {
       stop("input1_format must be 'nexus', 'fasta', or 'tnt'")
@@ -449,6 +558,7 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
 
     if (input2_format == "nexus") {
       format2 <- detect_format_from_nexus(input2)
+      ord2 <- get_ordered_chars(input2, "nexus")
       mat2 <- TreeTools::ReadCharacters(input2)
     } else if (input2_format == "fasta") {
       mat2 <- ape::read.FASTA(input2)
@@ -460,6 +570,7 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
       }
     } else if (input2_format == "tnt") {
       format2 <- detect_format_from_tnt(input2)
+      ord2 <- get_ordered_chars(input2, "tnt")
       mat2 <- read_tnt_manual(input2)
     } else {
       stop("input2_format must be 'nexus', 'fasta', or 'tnt'")
@@ -548,13 +659,26 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
       }
 
       if (is_tnt_output) {
-        write_tnt_format_concat(mat1_filtered, mat2_filtered, output_name, format1 = format1, format2 = format2)
+        write_tnt_format_concat(mat1_filtered, mat2_filtered, output_name, format1 = format1, format2 = format2, ord1 = ord1, ord2 = ord2)
         cat("Concatenated matrix written to:", output_name, "\n")
         cat("Format: TNT (blocks: ", format1, " + ", format2, ")\n")
       } else {
         ape::write.nexus.data(result_mat, file = output_name, format = nexus_data_format, interleaved = F)
         temp <- gsub("INTERLEAVE=NO", "", readLines(output_name))
         temp <- gsub("write.nexus.data.R", "RNODE", temp)
+        
+        nex_ordered <- integer(0)
+        if (length(ord1) > 0) nex_ordered <- c(nex_ordered, ord1)
+        if (length(ord2) > 0) nex_ordered <- c(nex_ordered, ord2 + ncol(mat1_filtered))
+        if (length(nex_ordered) > 0) {
+          assump_block <- c(
+            "BEGIN ASSUMPTIONS;",
+            "    OPTIONS DEFTYPE=unord;",
+            paste0("    TYPESET * Ordered = ", format_nexus_ordered(nex_ordered), ";"),
+            "END;"
+          )
+          temp <- c(temp, assump_block)
+        }
         writeLines(temp, output_name)
         cat("Concatenated matrix written to:", output_name, "\n")
         cat("Format:", nexus_data_format, "\n")
@@ -566,8 +690,8 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
         output_name2 <- paste0(base_path, "_SHARED_2.tnt")
         validate_output_files(c(output_name1, output_name2))
 
-        write_tnt_format(mat1_filtered, output_name1, format = format1)
-        write_tnt_format(mat2_filtered, output_name2, format = format2)
+        write_tnt_format(mat1_filtered, output_name1, format = format1, ordered = ord1)
+        write_tnt_format(mat2_filtered, output_name2, format = format2, ordered = ord2)
       } else {
         output_name1 <- paste0(output_path, "_SHARED_1.nexus")
         output_name2 <- paste0(output_path, "_SHARED_2.nexus")
@@ -576,11 +700,17 @@ filterSharedTaxa <- function(input1, input1_format = NULL, input2, input2_format
         ape::write.nexus.data(mat1_filtered, file = output_name1, format = format1, interleaved = F)
         temp1 <- gsub("INTERLEAVE=NO", "", readLines(output_name1))
         temp1 <- gsub("write.nexus.data.R", "RNODE", temp1)
+        if (length(ord1) > 0) {
+          temp1 <- c(temp1, "BEGIN ASSUMPTIONS;", "    OPTIONS DEFTYPE=unord;", paste0("    TYPESET * Ordered = ", format_nexus_ordered(ord1), ";"), "END;")
+        }
         writeLines(temp1, output_name1)
 
         ape::write.nexus.data(mat2_filtered, file = output_name2, format = format2, interleaved = F)
         temp2 <- gsub("INTERLEAVE=NO", "", readLines(output_name2))
         temp2 <- gsub("write.nexus.data.R", "RNODE", temp2)
+        if (length(ord2) > 0) {
+          temp2 <- c(temp2, "BEGIN ASSUMPTIONS;", "    OPTIONS DEFTYPE=unord;", paste0("    TYPESET * Ordered = ", format_nexus_ordered(ord2), ";"), "END;")
+        }
         writeLines(temp2, output_name2)
       }
 
