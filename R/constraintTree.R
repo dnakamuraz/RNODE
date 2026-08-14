@@ -3,14 +3,27 @@
 #' @description Generates a constraint tree based on a list of clades that should be kept monophyletic, collapsing all other clades.
 #'
 #' @param input_tree A phylogenetic tree of class \code{phylo}, or a path to a local NEXUS/Newick file containing the tree.
-#' @param input_constraint A list of clades (character vectors of tip labels) that should be kept monophyletic.
+#' @param input_constraint A list of clades (character vectors of tip labels) that should be kept monophyletic, or a character string of constraints (e.g., "(Taxon1, Taxon2)"), or a path to a text file containing such constraints.
 #' @param keep_root A boolean parameter informing whether the root node should be maintained or not even though it does not satisfy \code{input_constraint}.
-#' @param output_tree An optional character string specifying the file path for the output tree to be written in NEXUS format.
+#' @param output_tree An optional character string specifying the file path for the output tree to be written.
+#' @param format A character string specifying the format of the output tree file. Can be either \code{"newick"} (default) or \code{"nexus"}.
 #'
 #' @return An object of class \code{phylo} representing the constraint tree.
 #'
+#' @examples
+#' library(ape)
+#' tree <- read.tree(text = "((Human,Seal),(Cow,Whale),Mouse);")
+#'
+#' # Using a list of character vectors:
+#' constraintTree(tree, input_constraint = list(c("Human", "Seal")))
+#'
+#' # Using a Newick-style character string for constraints:
+#' constraintTree(tree, input_constraint = "(Human,Seal,Cow)")
+#'
 #' @export
-constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, output_tree = NULL) {
+constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, output_tree = NULL, format = c("newick", "nexus")) {
+  format <- match.arg(format)
+
   if (!requireNamespace("ape", quietly = TRUE)) {
     stop("Package 'ape' is required.")
   }
@@ -18,13 +31,44 @@ constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, outpu
   if (inherits(input_tree, "phylo")) {
     tree <- input_tree
   } else if (is.character(input_tree) && file.exists(input_tree)) {
-    tree <- tryCatch({
-      ape::read.nexus(input_tree)
-    }, error = function(e) {
-      ape::read.tree(input_tree)
-    })
+    tree <- tryCatch(
+      {
+        ape::read.nexus(input_tree)
+      },
+      error = function(e) {
+        ape::read.tree(input_tree)
+      }
+    )
   } else {
     stop("input_tree must be an object of class 'phylo' or a valid file path.")
+  }
+
+  if (is.character(input_constraint)) {
+    if (length(input_constraint) == 1 && file.exists(input_constraint)) {
+      input_constraint <- readLines(input_constraint, warn = FALSE)
+      input_constraint <- input_constraint[trimws(input_constraint) != ""]
+    }
+
+    input_constraint_str <- paste(input_constraint, collapse = ",")
+    text_to_read <- gsub(";;", ";", paste0("(", gsub(";", "", input_constraint_str), ");"))
+    
+    parsed_tree <- tryCatch({
+      ape::read.tree(text = text_to_read)
+    }, error = function(e) NULL)
+    
+    if (!is.null(parsed_tree)) {
+      clades <- list()
+      if (parsed_tree$Nnode > 0) {
+        for (i in (length(parsed_tree$tip.label) + 1):(length(parsed_tree$tip.label) + parsed_tree$Nnode)) {
+          clades[[length(clades) + 1]] <- ape::extract.clade(parsed_tree, i)$tip.label
+        }
+      }
+      input_constraint <- clades
+    } else {
+      input_constraint <- list(trimws(strsplit(gsub("[()]", "", input_constraint_str), ",")[[1]]))
+    }
+  } else if (!is.list(input_constraint)) {
+    input_constraint <- list(input_constraint)
   }
 
   taxa <- tree$tip.label
@@ -91,7 +135,11 @@ constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, outpu
   out_phylo <- ape::read.tree(text = tree_str)
 
   if (!is.null(output_tree)) {
-    ape::write.nexus(out_phylo, file = output_tree)
+    if (format == "nexus") {
+      ape::write.nexus(out_phylo, file = output_tree)
+    } else {
+      ape::write.tree(out_phylo, file = output_tree)
+    }
   }
 
   return(out_phylo)

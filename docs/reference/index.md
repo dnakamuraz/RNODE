@@ -39,6 +39,8 @@ and for writing tree files.
   : writeTree
 - [`howManyPolytomies()`](https://dnakamuraz.github.io/RNODE/reference/howManyPolytomies.md)
   : How many Polytomies in a tree
+- [`constraintTree()`](https://dnakamuraz.github.io/RNODE/reference/constraintTree.md)
+  : constraintTree
 
 ## Taxon Management
 
@@ -74,10 +76,3 @@ matrices (NEXUS / TNT formats).
   : nex2fas
 - [`tnt2fas()`](https://dnakamuraz.github.io/RNODE/reference/tnt2fas.md)
   : tnt2fas
-
-## Internal / Miscellaneous
-
-Internal helpers and placeholder functions.
-
-- [`hello()`](https://dnakamuraz.github.io/RNODE/reference/hello.md) :
-  Hello, World!

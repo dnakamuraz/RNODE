@@ -1,20 +1,15 @@
 # addREP
 
-Given one alignment and one tree with Goodman-Bremer (GB) support
-values, compute the ratio of explanatory power (REP) using equally
-weighted parsimony.
+Given a tree with Goodman-Bremer (GB) support values and the length of
+the worst tree, compute the ratio of explanatory power (REP).
 
 ## Usage
 
 ``` r
-addREP(data, tree)
+addREP(tree, best_tree_length, worst_tree_length, output_file = NULL)
 ```
 
 ## Arguments
-
-- data:
-
-  A cladistic matrix.
 
 - tree:
 
@@ -23,6 +18,25 @@ addREP(data, tree)
   NEWICK files or
   [`TreeTools::ReadTntTree`](https://ms609.github.io/TreeTools/reference/ReadTntTree.html)
   for TNT files.
+
+- best_tree_length:
+
+  The length of the best tree.
+
+- worst_tree_length:
+
+  The length of the worst tree. It can be computed in POY using negative
+  weights.
+
+- output_file:
+
+  A character string specifying the name of the output file in NEXUS
+  format. Default is `NULL` (no file is written).
+
+## Value
+
+A `phylo` object with the original Goodman-Bremer support values
+replaced by REP values.
 
 ## Details
 

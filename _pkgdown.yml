@@ -78,6 +78,7 @@ reference:
       - addREP
       - writeTree
       - howManyPolytomies
+      - constraintTree
 
   - title: "Taxon Management"
     desc: >
@@ -102,10 +103,7 @@ reference:
       - nex2fas
       - tnt2fas
 
-  - title: "Internal / Miscellaneous"
-    desc: "Internal helpers and placeholder functions."
-    contents:
-      - hello
+
 
 articles:
   - title: "Tutorials"
