@@ -15,7 +15,7 @@ constraintTree(
 \arguments{
 \item{input_tree}{A phylogenetic tree of class \code{phylo}, or a path to a local NEXUS/Newick file containing the tree.}
 
-\item{input_constraint}{A list of clades (character vectors of tip labels) that should be kept monophyletic, or a character string of constraints (e.g., "(Taxon1, Taxon2)"), or a path to a text file containing such constraints.}
+\item{input_constraint}{A list of clades (character vectors of tip labels) that should be kept monophyletic, or a character string of constraints (e.g., \code{"(Taxon1, Taxon2)"}), or a path to a text file containing such constraints. Glob-style wildcards are supported in taxon names: \code{*} matches any characters and \code{?} matches a single character. For example, \code{"(Hylodes*)"} matches all tips whose name starts with \code{"Hylodes"}.}
 
 \item{keep_root}{A boolean parameter informing whether the root node should be maintained or not even though it does not satisfy \code{input_constraint}.}
 
@@ -38,5 +38,9 @@ constraintTree(tree, input_constraint = list(c("Human", "Seal")))
 
 # Using a Newick-style character string for constraints:
 constraintTree(tree, input_constraint = "(Human,Seal,Cow)")
+
+# Using glob wildcards to match multiple taxa:
+tree2 <- read.tree(text = "((Hylodes1,Hylodes2),(Megaelosia1,Megaelosia2),Outgroup);")
+constraintTree(tree2, input_constraint = "(Hylodes*,Megaelosia*)")
 
 }
