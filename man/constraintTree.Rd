@@ -9,7 +9,7 @@ constraintTree(
   input_constraint,
   keep_root = TRUE,
   output_tree = NULL,
-  format = c("nexus", "newick")
+  format = c("newick", "nexus")
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ constraintTree(
 
 \item{output_tree}{An optional character string specifying the file path for the output tree to be written.}
 
-\item{format}{A character string specifying the format of the output tree file. Can be either \code{"nexus"} (default) or \code{"newick"}.}
+\item{format}{A character string specifying the format of the output tree file. Can be either \code{"newick"} (default) or \code{"nexus"}.}
 }
 \value{
 An object of class \code{phylo} representing the constraint tree.
 }
 \description{
-Generates a constraint tree based on a list of clades that should be kept monophyletic, collapsing all other clades.
+Generates a constraint tree based on a list of clades that should be kept monophyletic, collapsing all other clades. This function is useful to generate constraint trees for POY analyses.
 }
 \examples{
 library(ape)

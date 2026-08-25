@@ -1,9 +1,9 @@
 #' constraintTree
 #'
-#' @description Generates a constraint tree based on a list of clades that should be kept monophyletic, collapsing all other clades.
+#' @description Generates a constraint tree based on a list of clades that should be kept monophyletic, collapsing all other clades. This function is useful to generate constraint trees for POY analyses.
 #'
 #' @param input_tree A phylogenetic tree of class \code{phylo}, or a path to a local NEXUS/Newick file containing the tree.
-#' @param input_constraint A list of clades (character vectors of tip labels) that should be kept monophyletic, or a character string of constraints (e.g., "(Taxon1, Taxon2)"), or a path to a text file containing such constraints.
+#' @param input_constraint A list of clades (character vectors of tip labels) that should be kept monophyletic, or a character string of constraints (e.g., \code{"(Taxon1, Taxon2)"}), or a path to a text file containing such constraints. Glob-style wildcards are supported in taxon names: \code{*} matches any characters and \code{?} matches a single character. For example, \code{"(Hylodes*)"} matches all tips whose name starts with \code{"Hylodes"}.
 #' @param keep_root A boolean parameter informing whether the root node should be maintained or not even though it does not satisfy \code{input_constraint}.
 #' @param output_tree An optional character string specifying the file path for the output tree to be written.
 #' @param format A character string specifying the format of the output tree file. Can be either \code{"newick"} (default) or \code{"nexus"}.
@@ -19,6 +19,10 @@
 #'
 #' # Using a Newick-style character string for constraints:
 #' constraintTree(tree, input_constraint = "(Human,Seal,Cow)")
+#'
+#' # Using glob wildcards to match multiple taxa:
+#' tree2 <- read.tree(text = "((Hylodes1,Hylodes2),(Megaelosia1,Megaelosia2),Outgroup);")
+#' constraintTree(tree2, input_constraint = "(Hylodes*,Megaelosia*)")
 #'
 #' @export
 constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, output_tree = NULL, format = c("newick", "nexus")) {
@@ -50,18 +54,44 @@ constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, outpu
     }
 
     input_constraint_str <- paste(input_constraint, collapse = ",")
+
+    # Expand glob/regex patterns against tree tip labels
+    tokens <- trimws(unlist(strsplit(input_constraint_str, "[(),;]")))
+    tokens <- unique(tokens[tokens != ""])
+    for (token in tokens) {
+      if (grepl("[*?]", token)) {
+        # Convert glob wildcards to regex: escape regex metacharacters first, then convert * and ?
+        pattern <- gsub("([.+^${}|\\[\\]\\\\])", "\\\\\\1", token)
+        pattern <- gsub("\\*", ".*", pattern)
+        pattern <- gsub("\\?", ".", pattern)
+        pattern <- paste0("^", pattern, "$")
+        matches <- grep(pattern, tree$tip.label, value = TRUE)
+        if (length(matches) > 0) {
+          input_constraint_str <- gsub(token, paste(matches, collapse = ","), input_constraint_str, fixed = TRUE)
+        } else {
+          warning(paste("No taxa in input_tree matched the pattern:", token))
+        }
+      }
+    }
+
     text_to_read <- gsub(";;", ";", paste0("(", gsub(";", "", input_constraint_str), ");"))
-    
-    parsed_tree <- tryCatch({
-      ape::read.tree(text = text_to_read)
-    }, error = function(e) NULL)
-    
+
+    parsed_tree <- tryCatch(
+      {
+        ape::read.tree(text = text_to_read)
+      },
+      error = function(e) NULL
+    )
+
     if (!is.null(parsed_tree)) {
       clades <- list()
-      if (parsed_tree$Nnode > 0) {
-        for (i in (length(parsed_tree$tip.label) + 1):(length(parsed_tree$tip.label) + parsed_tree$Nnode)) {
+      ntips <- length(parsed_tree$tip.label)
+      if (parsed_tree$Nnode > 1) {
+        for (i in (ntips + 2):(ntips + parsed_tree$Nnode)) {
           clades[[length(clades) + 1]] <- ape::extract.clade(parsed_tree, i)$tip.label
         }
+      } else if (parsed_tree$Nnode == 1) {
+        clades[[1]] <- parsed_tree$tip.label
       }
       input_constraint <- clades
     } else {
@@ -74,7 +104,8 @@ constraintTree <- function(input_tree, input_constraint, keep_root = TRUE, outpu
   taxa <- tree$tip.label
   all_constrained <- unlist(input_constraint)
   if (!all(all_constrained %in% taxa)) {
-    stop("Some taxa in input_constraint are not present in the input_tree.")
+    missing_taxa <- unique(all_constrained[!all_constrained %in% taxa])
+    stop(paste("Some taxa in input_constraint are not present in the input_tree:", paste(missing_taxa, collapse = ", ")))
   }
 
   if (keep_root) {
