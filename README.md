@@ -30,10 +30,22 @@ For detailed tutorials and examples on how to use these functions, please refer 
 
 ### Consensus sequences
 
-`consensusFAS()` builds a consensus sequence from a FASTA alignment using IUPAC ambiguity codes. Two methods are available:
+`consensusFAS()` builds a consensus sequence from a FASTA alignment using IUPAC ambiguity codes and appends it to the alignment. Three `consensus` methods are available:
 
-- **Relaxed**: the consensus keeps the IUPAC symbol representing the union of all observed nucleotides at each position; gaps are ignored when at least one nucleotide is present (e.g., `ATCGTT--` + `ATCGTTAA` + `ATCGTT--` → `ATCGTTAA`).
-- **Conservative**: same as relaxed, but positions where more than half the sequences are gaps are replaced with `?` (e.g., → `ATCGTT??`).
+| `consensus =` | Rule | Example output |
+|---|---|---|
+| `"relaxed"` (default) | IUPAC union of all observed nucleotides; gaps/`N` ignored when real bases present | `ATCGTTAA` |
+| `"conservative"` | Same, but positions where >50 % of sequences are gaps/`N` become `?` | `ATCGTT??` |
+| `"both"` | Appends both sequences (`Consensus_relaxed` + `Consensus_conservative`) | — |
+
+**`N` / gap handling** per column:
+
+| Column composition | Relaxed | Conservative |
+|---|---|---|
+| All `N` | `N` | `N` |
+| Mix of `N` and `-` | `N` | `?` |
+| All `-` / `?` | `-` | `-` |
+| Real nucleotide(s) present | IUPAC symbol | IUPAC symbol (or `?` if majority missing) |
 
 ```r
 # Relaxed consensus (default)
@@ -44,7 +56,12 @@ result <- consensusFAS(input = "alignment.fasta",
                        consensus = "conservative",
                        output = "consensus_alignment.fasta")
 
-# Align unaligned sequences first (requires MUSCLE)
+# Both methods appended in one call
+result <- consensusFAS(input = "alignment.fasta",
+                       consensus = "both",
+                       output = "consensus_alignment.fasta")
+
+# Align unaligned sequences first (requires MUSCLE in PATH)
 result <- consensusFAS(input = "unaligned.fasta", align = TRUE)
 ```
 

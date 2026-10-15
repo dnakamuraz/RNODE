@@ -89,8 +89,8 @@ reference:
 
   - title: "Matrix Handling"
     desc: >
-      Functions for filtering, concatenating, and converting phylogenetic
-      matrices (NEXUS / TNT formats).
+      Functions for filtering, concatenating, converting, and computing consensus
+      sequences from phylogenetic matrices (NEXUS / TNT / FASTA formats).
     contents:
       - concatenate
       - consensusFAS
