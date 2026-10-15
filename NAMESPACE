@@ -3,6 +3,7 @@
 export(addREP)
 export(compareBranchLength)
 export(concatenate)
+export(consensusFAS)
 export(constraintTree)
 export(filterInvariants)
 export(filterMissing)

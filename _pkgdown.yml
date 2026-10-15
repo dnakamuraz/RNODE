@@ -93,6 +93,7 @@ reference:
       matrices (NEXUS / TNT formats).
     contents:
       - concatenate
+      - consensusFAS
       - filterMissing
       - filterInvariants
       - filterSharedTaxa
