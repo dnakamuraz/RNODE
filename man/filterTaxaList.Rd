@@ -14,9 +14,9 @@ filterTaxaList(
 )
 }
 \arguments{
-\item{input}{A local file path (molecular or morphological matrix in nexus or tnt format) or already loaded as a matrix object in R.}
+\item{input}{A local file path (molecular or morphological matrix in nexus, tnt, or fasta format) or already loaded as a matrix object in R.}
 
-\item{input_format}{To load from a local file: 'nexus', 'tnt', or NULL. Defaults to NULL (auto-detects from extension).}
+\item{input_format}{To load from a local file: 'nexus', 'tnt', 'fasta', or NULL. Defaults to NULL (auto-detects from extension).}
 
 \item{list}{A local .txt file path or an R object (vector, list, or data.frame) containing the list of terminals, with one terminal name per row/element.}
 
@@ -24,7 +24,7 @@ filterTaxaList(
 
 \item{output}{Output path (e.g., "Desktop/Filtered"). If NULL, returns the matrix as an R object without writing files.}
 
-\item{output_format}{Output file format: 'nexus', 'tnt', or NULL. If NULL, the format is inferred from the `output` extension, or simply returns as an R object if `output` is also NULL.}
+\item{output_format}{Output file format: 'nexus', 'tnt', 'fasta', or NULL. If NULL, the format is inferred from the `output` extension, or simply returns as an R object if `output` is also NULL. FASTA output is only available for DNA and protein data.}
 }
 \description{
 Filter a molecular or morphological matrix by keeping or deleting specific taxa based on a provided list.
@@ -45,6 +45,15 @@ filtered_mat <- filterTaxaList(
     input = "testdata/matrix.nexus",
     list = taxa_to_remove,
     filter = "delete"
+)
+
+# Filter a FASTA alignment and write the result back to FASTA
+filterTaxaList(
+    input = "testdata/alignment.fasta",
+    input_format = "fasta",
+    list = "testdata/taxa_to_keep.txt",
+    filter = "keep",
+    output = "testdata/filtered_alignment.fasta"
 )
 }
 }

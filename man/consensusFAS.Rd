@@ -4,7 +4,13 @@
 \alias{consensusFAS}
 \title{consensusFAS}
 \usage{
-consensusFAS(input, align = FALSE, output = NULL, consensus = "relaxed")
+consensusFAS(
+  input,
+  align = FALSE,
+  output = NULL,
+  consensus = "relaxed",
+  trimming = FALSE
+)
 }
 \arguments{
 \item{input}{A FASTA file path or a named character vector / \code{DNAbin}
@@ -19,37 +25,50 @@ result (alignment + consensus). If \code{NULL} (default), the result is
 returned as an R object only.}
 
 \item{consensus}{Method for building the consensus: \code{"relaxed"}
-(default), \code{"conservative"}, or \code{"both"}. See Description
-for details.}
+(default), \code{"conservative"}, \code{"very_conservative"}, or
+\code{"all"}. See Description for details.}
+
+\item{trimming}{Logical; if \code{TRUE}, flanking columns where every
+sequence contains only \code{N}, \code{-}, or \code{?} are removed from
+both the alignment and the consensus before output. Internal uninformative
+columns are not affected. Default is \code{FALSE}.}
 }
 \value{
 A named character vector of aligned sequences with the consensus
   sequence(s) appended (named \code{Consensus}, \code{Consensus_relaxed},
-  and/or \code{Consensus_conservative}).
+  \code{Consensus_conservative}, and/or \code{Consensus_very_conservative}).
 }
 \description{
 Create a consensus sequence from DNA sequences in FASTA format.
   The consensus is computed column-wise using IUPAC ambiguity codes and appended
-  to the alignment. Three consensus options are available:
+  to the alignment. Four consensus options are available:
   \itemize{
     \item \strong{relaxed}: The consensus nucleotide at each position is the
       IUPAC symbol that represents the union of all observed non-gap states.
       Gaps are ignored when other nucleotides are present; a column that is
       entirely gaps produces a gap in the consensus.
-    \item \strong{conservative}: Same as relaxed, but positions where more than
-      half of the sequences contain a gap are replaced with a question mark
-      (\code{?}) in the consensus.
-    \item \strong{both}: Appends both the relaxed and the conservative consensus
-      sequences to the alignment.
+    \item \strong{conservative}: Same as relaxed, but a position is replaced
+      with \code{?} if more than half of the sequences are uninformative at
+      that position (i.e., have \code{N}, \code{-}, or \code{?}). Note that
+      columns where every sequence is \code{N} remain \code{N}, and columns
+      with a mix of \code{N} and \code{-} (but no real nucleotide) become
+      \code{?}.
+    \item \strong{very_conservative}: Calls the nucleotide only when all
+      informative sequences agree on a single base. If they disagree
+      (ambiguity) but no gaps are present, inserts \code{N}; if they
+      disagree and gaps are also present, inserts \code{?}.
+    \item \strong{all}: Appends all three consensus sequences to the
+      alignment (relaxed, conservative, and very_conservative).
   }
 }
 \examples{
 # From a file, relaxed consensus
 # result <- consensusFAS(input = "my_sequences.fasta")
 
-# Conservative consensus, write output
+# Conservative consensus, written to file, with end-trimming
 # result <- consensusFAS(input = "my_sequences.fasta",
 #                        consensus = "conservative",
+#                        trimming = TRUE,
 #                        output = "my_consensus.fasta")
 }
 \author{
